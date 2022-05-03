@@ -1,2 +1,3 @@
 # nosper-engine
-Mathematical evaluator (calculator) engine written in Javascript
+
+Mathematical engine (calculator) library written in Javascript
