@@ -1,3 +1,5 @@
+import { spnr } from './lib/spnr.js'
+
 export const TokenType = {
     BINARY_OPERATOR: 0,
     UNARY_OPERATOR: 0,

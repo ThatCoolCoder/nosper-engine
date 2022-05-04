@@ -1,4 +1,5 @@
-import {Token} from "./Token.mjs";
+import { spnr } from './lib/spnr.js'
+import { Token, TokenType, TokenSubType } from "./Token.mjs";
 
 export class Tokeniser {
     // Class to tokenise string

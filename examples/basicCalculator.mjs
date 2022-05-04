@@ -1,15 +1,14 @@
-const readline = require('readline');
+import { spnr } from '../src/lib/spnr.js';
+import * as readline from 'readline';
 import { Evaluator } from "../src/Evaluator.mjs";
 
+var evaluator = new Evaluator();
 
 const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+    input: process.stdin,
+    output: process.stdout
 });
 
-rl.question('What is your name ? ', function (name) {
-  rl.question('Where do you live ? ', function (country) {
-    console.log(`${name}, is a citizen of ${country}`);
-    rl.close();
-  });
+rl.question('Enter equation: ', function (equation) {
+    console.log(evaluator.evaluate(equation));
 });

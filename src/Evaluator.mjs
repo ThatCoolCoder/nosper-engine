@@ -1,7 +1,8 @@
-import {TokenSubType, TokenType} from "./Token.mjs";
-import {EvaluationContext} from "./EvaluationContext.mjs";
-import {Tokeniser} from "./Tokeniser.mjs";
-import {UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode} from "./SyntaxTreeNodes.mjs";
+import { spnr } from './lib/spnr.js'
+import { TokenSubType, TokenType, OperatorPrecedence } from "./Token.mjs";
+import { EvaluationContext } from "./EvaluationContext.mjs";
+import { Tokeniser } from "./Tokeniser.mjs";
+import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode } from "./SyntaxTreeNodes.mjs";
 
 export class Evaluator {
     // Entry class. Create one and use it to evaluate math equations
@@ -34,9 +35,7 @@ export class Evaluator {
      */
     evaluateSingleExpression(expression) {
         var tokens = this.tokeniser.tokeniseExpression(expression);
-        console.log(tokens)
         var syntaxTree = this.buildSyntaxTree(tokens);
-        console.log(syntaxTree);
         return syntaxTree.evaluate(this.context);
     }
 

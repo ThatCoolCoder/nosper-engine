@@ -1,3 +1,5 @@
+import { spnr } from './lib/spnr.js'
+
 export class EvaluationContext {
     constructor() {
         this.variables = new ValueGroup({
