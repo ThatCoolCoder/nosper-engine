@@ -7,7 +7,7 @@ Mathematical engine (calculator) library written in Javascript. Should be able t
 Add the project as a git submodule. We use ES6 modules so import it as so:
 
 ```javascript
-import { Evaluator } from './path/to/Evaluator.mjs';
+import { Evaluator } from './nosper-engine/src/Evaluator.mjs';
 var evaluator = new Evaluator();
 evaluator.evaluate('5 * 2');
 ```
