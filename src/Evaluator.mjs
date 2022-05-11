@@ -1,4 +1,4 @@
-import { spnr } from './lib/spnr.js'
+import { spnr } from './lib/spnr.mjs'
 import { TokenSubType, TokenType, OperatorPrecedence } from "./Token.mjs";
 import { EvaluationContext } from "./EvaluationContext.mjs";
 import { Tokeniser } from "./Tokeniser.mjs";

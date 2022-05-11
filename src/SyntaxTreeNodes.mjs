@@ -1,4 +1,4 @@
-import { spnr } from './lib/spnr.js'
+import { spnr } from './lib/spnr.mjs'
 import { TokenSubType, TokenType } from "./Token.mjs";
 
 const BinaryOperator = {

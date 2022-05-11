@@ -1,4 +1,3 @@
-import { spnr } from '../src/lib/spnr.js';
 import * as readline from 'readline';
 import { Evaluator } from "../src/Evaluator.mjs";
 

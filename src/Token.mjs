@@ -1,4 +1,4 @@
-import { spnr } from './lib/spnr.js'
+import { spnr } from './lib/spnr.mjs'
 
 export const TokenType = {
     BINARY_OPERATOR: 0,
