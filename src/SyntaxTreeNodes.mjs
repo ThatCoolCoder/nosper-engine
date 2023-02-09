@@ -1,5 +1,5 @@
 import { spnr } from './lib/spnr.mjs'
-import { TokenSubType, TokenType } from "./Token.mjs";
+import { TokenSubType } from "./Token.mjs";
 import { ValueGroup } from './EvaluationContext.mjs';
 
 const BinaryOperator = {
