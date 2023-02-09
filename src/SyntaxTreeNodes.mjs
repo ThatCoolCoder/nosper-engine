@@ -1,5 +1,6 @@
 import { spnr } from './lib/spnr.mjs'
 import { TokenSubType, TokenType } from "./Token.mjs";
+import { ValueGroup } from './EvaluationContext.mjs';
 
 const BinaryOperator = {
     [TokenSubType.ADD]: (a, b, ctx) => a.evaluate(ctx) + b.evaluate(ctx),

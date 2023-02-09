@@ -14,7 +14,7 @@ export class EvaluationContext {
     }
 }
 
-class ValueGroup {
+export class ValueGroup {
     // Abstraction of a dictionary for storing (potentially scoped) information such as functions and variables
 
     constructor(initialData={}) {
