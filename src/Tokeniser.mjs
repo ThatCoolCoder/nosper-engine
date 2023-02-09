@@ -68,7 +68,7 @@ export class Tokeniser {
                     this.next();
                 }
             }
-            else if ('()'.contains(this.crntChar)) {
+            else if ('()'.includes(this.crntChar)) {
                 tokens.push(new Token(TokenType.PAREN, this.StringToTokenSubType[this.crntChar], this.crntChar));
                 this.next();
             }
