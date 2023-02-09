@@ -4,6 +4,7 @@ export class EvaluationContext {
     constructor() {
         this.variables = new ValueGroup({
             pi: spnr.PI,
+            tau: spnr.PI * 2,
             e: spnr.E,
             phi: (1 + spnr.sqrt(5)) / 2, // (aka the golden ratio)
             silv: spnr.SQRT2 + 1
