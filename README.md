@@ -9,5 +9,5 @@ Add the project as a git submodule. We use ES6 modules so import it as so:
 ```javascript
 import { Evaluator } from './nosper-engine/src/Evaluator.mjs';
 var evaluator = new Evaluator();
-evaluator.evaluate('5 * 2');
+console.log(evaluator.evaluate('5 * 2')); // will print 10
 ```

@@ -1,18 +1,12 @@
 import { spnr } from './lib/spnr.mjs'
-import { TokenSubType, TokenType, OperatorPrecedence, ParsedFunctionCallToken } from "./Token.mjs";
-import { EvaluationContext } from "./EvaluationContext.mjs";
-import { Tokeniser } from "./Tokeniser.mjs";
-import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode } from "./SyntaxTreeNodes.mjs";
+import { TokenSubType, TokenType, OperatorPrecedence, ParsedFunctionCallToken } from './Token.mjs';
+import { EvaluationContext } from './EvaluationContext.mjs';
+import { Tokeniser } from './Tokeniser.mjs';
+import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode } from './SyntaxTreeNodes.mjs';
+import * as Errors from './Errors.mjs';
 
 export class Evaluator {
     // Entry class. Create one and use it to evaluate math equations
-
-    static MathSyntaxError = class extends Error {
-        constructor() {
-            super('Invalid syntax in expression');
-            this.name = 'MathSyntaxError';
-        }
-    }
 
     constructor() {
         this.context = new EvaluationContext();
@@ -25,7 +19,7 @@ export class Evaluator {
      * Evaluate multiple expressions separated by this.expressionSplitter 
      */
     evaluate(expressions) {
-        expressions = expressions.split(this.expressionSplitter);
+        expressions = expressions.split(this.expressionSplitter).map(e => e.trim()).filter(e => e.length > 0);
         var results = expressions.map(e => this.evaluateSingleExpression(e));
         return results[results.length - 1];
     }
@@ -35,8 +29,14 @@ export class Evaluator {
      */
     evaluateSingleExpression(expression) {
         var tokens = this.tokeniser.tokeniseExpression(expression);
-        var syntaxTree = this.buildSyntaxTree(tokens);
-        return syntaxTree.evaluate(this.context);
+        try {
+            var syntaxTree = this.buildSyntaxTree(tokens);
+            return syntaxTree.evaluate(this.context);
+        }
+        catch (e) {
+            if (e instanceof Errors.EvaluationError) throw e;
+            else throw new Errors.MathSyntaxError();
+        }
     }
 
     buildSyntaxTree(tokens) {

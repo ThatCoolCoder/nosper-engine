@@ -1,14 +1,28 @@
 import { spnr } from './lib/spnr.mjs'
 import { TokenSubType } from "./Token.mjs";
 import { ValueGroup } from './EvaluationContext.mjs';
+import * as Errors from './Errors.mjs';
 
 const BinaryOperator = {
     [TokenSubType.ADD]: (a, b, ctx) => a.evaluate(ctx) + b.evaluate(ctx),
     [TokenSubType.SUBTRACT]: (a, b, ctx) => a.evaluate(ctx) - b.evaluate(ctx),
     [TokenSubType.MULTIPLY]: (a, b, ctx) => a.evaluate(ctx) * b.evaluate(ctx),
-    [TokenSubType.DIVIDE]: (a, b, ctx) => a.evaluate(ctx) / b.evaluate(ctx),
-    [TokenSubType.MODULO]: (a, b, ctx) => a.evaluate(ctx) % b.evaluate(ctx),
-    [TokenSubType.EXPONENTIATE]: (a, b, ctx) => a.evaluate(ctx) ** b.evaluate(ctx),
+    [TokenSubType.DIVIDE]: (a, b, ctx) => {
+        var bValue = b.evaluate(ctx);
+        if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
+        return a.evaluate(ctx) / bValue;
+    },
+    [TokenSubType.MODULO]: (a, b, ctx) => {
+        var bValue = b.evaluate(ctx);
+        if (bValue == 0) throw new Errors.MathDomainError('Cannot modulo by 0');
+        return a.evaluate(ctx) % bValue;
+    },
+    [TokenSubType.EXPONENTIATE]: (a, b, ctx) => {
+        var aValue = a.evaluate(ctx);
+        var bValue = b.evaluate(ctx);
+        if (aValue == 0 && bValue == 0) throw new Errors.MathDomainError('0 to the power of 0 is undefined');
+        return aValue ** bValue;
+    },
     [TokenSubType.ASSIGN]: (a, b, ctx) => {
         var bValue = b.evaluate(ctx);
         ctx.variables.set(a.value, bValue);
@@ -69,7 +83,7 @@ export class ValueNode extends SyntaxTreeNode {
         if (typeof (this.value) == 'number') return this.value;
         else if (topOfArgumentStack != undefined && topOfArgumentStack.isDefined(this.value)) return topOfArgumentStack.get(this.value);
         else if (context.variables.isDefined(this.value)) return context.variables.get(this.value);
-        else return this.value; // todo: throw an error on weird value
+        throw new Errors.UndefinedVariableError(this.value);
     }
 }
 
@@ -109,8 +123,13 @@ export class FunctionCallNode extends SyntaxTreeNode {
         var valueGroup = new ValueGroup();
         this.args.forEach((arg, idx) => valueGroup.set(idx, arg.evaluate(context)));
         context.argumentStack.push(valueGroup);
-        var result = context.functions.get(this.name).evaluate(context);
-        context.argumentStack.pop();
-        return result;
+        if (context.functions.isDefined(this.name)) {
+            var result = context.functions.get(this.name).evaluate(context);
+            context.argumentStack.pop();
+            return result;
+        }
+        else {
+            throw new Errors.UndefinedFunctionError(this.name);
+        }
     }
 }
