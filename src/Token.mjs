@@ -49,7 +49,7 @@ export const TokenSubType = {
     L_PAREN: 0,
     R_PAREN: 0,
 
-    // (function call has no subtypes)
+    // function call
     UNPARSED_FUNCTION_CALL: 0,
     PARSED_FUNCTION_CALL: 0,
 

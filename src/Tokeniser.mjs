@@ -106,6 +106,8 @@ export class Tokeniser {
 
         this.convertToNegations(tokens);
 
+        tokens = this.insertImplicitMultiplicationSigns(tokens);
+
         return tokens;
     }
 
@@ -181,5 +183,30 @@ export class Tokeniser {
             }
             previous = token;
         })
+    }
+
+    insertImplicitMultiplicationSigns(tokens) {
+        var newTokens = [];
+
+        for (var i = 0; i < tokens.length - 1; i ++)
+        {
+            var currentToken = tokens[i];
+            var nextToken = tokens[i + 1];
+
+            var currentTokenOk = currentToken.type == TokenType.VALUE ||
+                currentToken.subType == TokenSubType.R_PAREN;
+            var nextTokenOk = nextToken.type == TokenType.VALUE ||
+                nextToken.subType == TokenSubType.L_PAREN || 
+                nextToken.subType == TokenSubType.UNPARSED_FUNCTION_CALL;
+
+            newTokens.push(currentToken);
+            if (currentTokenOk && nextTokenOk)
+            {
+                newTokens.push(new Token(TokenType.BINARY_OPERATOR, TokenSubType.MULTIPLY, '*'));
+            }
+        }
+        newTokens.push(tokens[tokens.length - 1]); // add last token because we missed it in the loop
+        
+        return newTokens;
     }
 }
