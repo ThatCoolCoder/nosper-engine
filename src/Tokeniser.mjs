@@ -9,6 +9,7 @@ export class Tokeniser {
         // Binary operator
         '+': TokenSubType.ADD,
         '-': TokenSubType.SUBTRACT,
+        'x': TokenSubType.MULTIPLY,
         '*': TokenSubType.MULTIPLY,
         '/': TokenSubType.DIVIDE,
         '%': TokenSubType.MODULO,
@@ -52,8 +53,8 @@ export class Tokeniser {
         var tokens = [];
 
         while (this.charIdx < expression.length) {
-            if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=']) != null) {
-                var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=']);
+            if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']) != null) {
+                var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']);
                 tokens.push(new Token(TokenType.BINARY_OPERATOR,
                     this.StringToTokenSubType[text], text));
                 this.next(text.length);
