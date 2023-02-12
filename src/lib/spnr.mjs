@@ -1,10 +1,10 @@
 /*@license
 
-spnr.js v1.7.0
+spnr.js v1.8.0
 
 MIT License
 
-Copyright (c) 2022 That-Cool-Coder
+Copyright (c) 2023 That-Cool-Coder
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// inserted at start of compiled spnr (when compiled to .mjs)
+
+var spnrAsMjs = true;
+
 // Setup spnr instance
 
 var spnrInBrowser = typeof window !== 'undefined';
-var spnrAlreadyDefined = spnrInBrowser ? window.spnr !== undefined : false;
+var spnrAlreadyDefined = spnrAsMjs
+    ? false
+    : spnrInBrowser
+        ? window.spnr !== undefined
+        : false;
 
 if (spnrAlreadyDefined) {
 
@@ -48,10 +56,10 @@ else {
      * @namespace
      */
     var spnr = {}; // Create an object to be the basis of spnr
-    spnr.VERSION = 'v1.7.0';
+    spnr.VERSION = 'v1.8.0';
     spnr.consoleLogHeader = '  🔧🔧 ';
     spnr.consoleLogStyling = 'background-color: #9cc8ff; display: block';
-    if (spnrInBrowser) window.spnr = spnr; // Make it global
+    if (spnrInBrowser && spnrAsMjs) window.spnr = spnr; // Make it global
 
     // Make a 'hello' message
     console.log(`%c  \n${spnr.consoleLogHeader} spnr.js ${spnr.VERSION}  \n  `,
@@ -1111,7 +1119,7 @@ spnr.v.rotate = function(v, angle=0, useDegrees=false) {
  * @param {spnr.Vector} v - vector to rotate
  * @param {number} angle - angle to rotate the vector by
  * @param {boolean} [useDegrees=false] - whether the angle provided is in degrees or radians. If this value is not provided then defaults to radians.
- * @returns 
+ * @returns {spnr.Vector}
  */
 spnr.v.copyRotate = function(v, angle=0, useDegrees=false) {
     if (useDegrees) {
@@ -1185,7 +1193,7 @@ spnr.v.map = function(v, oldMin, oldMax, newMin, newMax) {
  * @param {spnr.Vector} oldMax 
  * @param {spnr.Vector} newMin 
  * @param {spnr.Vector} newMax 
- * @returns 
+ * @returns {spnr.Vector}
  */
 spnr.v.copyMap = function(v, oldMin, oldMax, newMin, newMax) {
     return spnr.v(
@@ -3505,6 +3513,7 @@ spnr.GameEngine.FillPageCanvasSizer = class extends spnr.GameEngine.AbstractCanv
     }
 }
 
-// (appended at end of compiled spnr, handles exporting)
+// appended at end of compiled spnr (when compiled to .mjs)
+// handles exporting
 
 export { spnr };
