@@ -77,42 +77,53 @@ export class SyntaxTreeNode {
 }
 
 export class ValueNode extends SyntaxTreeNode {
-    constructor(value) {
+    constructor(value, subType) {
         super();
         this.value = value;
+        this.subType = subType;
     }
 
     evaluate(context) {
-        var topOfArgumentStack = context.argumentStack[context.argumentStack.length - 1];
-        if (typeof (this.value) == 'number') return this.value;
-        else if (topOfArgumentStack != undefined && topOfArgumentStack.isDefined(this.value)) return topOfArgumentStack.get(this.value);
-        else if (context.variables.isDefined(this.value)) return context.variables.get(this.value);
-        throw new Errors.UndefinedVariableError(this.value);
+        if (this.subType == TokenSubType.LITERAL)
+        {
+            return this.value;
+        }
+        else if (this.subType == TokenSubType.VARIABLE)
+        {
+            var topOfArgumentStack = context.argumentStack[context.argumentStack.length - 1];
+            if (topOfArgumentStack != undefined && topOfArgumentStack.isDefined(this.value)) return topOfArgumentStack.get(this.value);
+            else if (context.variables.isDefined(this.value)) return context.variables.get(this.value);
+            else throw new Errors.UndefinedVariableError(this.value);
+        }
+        else if (this.subType == TokenSubType.PREVIOUS_ANSWER)
+        {
+            return context.previousAnswer;
+        }
     }
 }
 
 export class BinaryOperatorNode extends SyntaxTreeNode {
-    constructor(left, right, operator) {
+    constructor(left, right, operatorSubType) {
         super();
         this.left = left;
         this.right = right;
-        this.operator = operator;
+        this.operatorSubType = operatorSubType;
     }
 
     evaluate(context) {
-        return BinaryOperator[this.operator](this.left, this.right, context);
+        return BinaryOperator[this.operatorSubType](this.left, this.right, context);
     }
 }
 
 export class UnaryOperatorNode extends SyntaxTreeNode {
-    constructor(right, operator) {
+    constructor(right, operatorSubType) {
         super();
         this.right = right;
-        this.operator = operator;
+        this.operatorSubType = operatorSubType;
     }
 
     evaluate(context) {
-        return UnaryOperator[this.operator](this.right, context);
+        return UnaryOperator[this.operatorSubType](this.right, context);
     }
 }
 

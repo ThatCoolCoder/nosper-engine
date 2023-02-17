@@ -53,6 +53,7 @@ export class Tokeniser {
         var tokens = [];
 
         while (this.charIdx < expression.length) {
+            // Basic operators & symbols
             if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']) != null) {
                 var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']);
                 tokens.push(new Token(TokenType.BINARY_OPERATOR,
@@ -77,27 +78,34 @@ export class Tokeniser {
                 tokens.push(new Token(TokenType.SEPARATOR, TokenSubType.ARGUMENT_SEPARATOR, this.crntChar));
                 this.next();
             }
-            else if (spnr.str.digits.includes(this.crntChar) || this.crntChar == '.') {
-                tokens.push(new Token(TokenType.VALUE, TokenSubType.LITERAL, Number(this.readNumber())));
-            }
             else if (this.nextCharsEqualToAny(['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln', ]) != null) {
                 var text = this.nextCharsEqualToAny(['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln']);
                 tokens.push(new Token(TokenType.UNARY_OPERATOR, this.StringToTokenSubType[text], text));
                 this.next(text.length);
             }
-            else if (this.crntChar == '$') {
-                this.next();
-                tokens.push(new Token(TokenType.VALUE, TokenSubType.VARIABLE, this.readStringWithDigits()));
-            }
-            else if (this.crntChar == '&') {
-                this.next();
-                tokens.push(new Token(TokenType.FUNCTION_CALL, TokenSubType.UNPARSED_FUNCTION_CALL, this.readString()));
+            // Values
+            else if (spnr.str.digits.includes(this.crntChar) || this.crntChar == '.') {
+                tokens.push(new Token(TokenType.VALUE, TokenSubType.LITERAL, Number(this.readNumber())));
             }
             else if (this.crntChar.toLowerCase() == 'e' && spnr.str.digits.includes(this.peekNext())) {
                 // Try to read number like  E6  (10^6)
                 this.next();
                 var value = 10 ** Number(this.readNumber());
                 tokens.push(new Token(TokenType.VALUE, TokenSubType.LITERAL, value));
+            }
+            else if (this.crntChar == '$') {
+                this.next();
+                tokens.push(new Token(TokenType.VALUE, TokenSubType.VARIABLE, this.readStringWithDigits()));
+            }
+            else if (this.nextCharsEqualTo('ans'))
+            {
+                this.next('ans'.length);
+                tokens.push(new Token(TokenType.VALUE, TokenSubType.PREVIOUS_ANSWER, 'ans'));
+            }
+            // Functions
+            else if (this.crntChar == '&') {
+                this.next();
+                tokens.push(new Token(TokenType.FUNCTION_CALL, TokenSubType.UNPARSED_FUNCTION_CALL, this.readString()));
             }
             else {
                 this.next();

@@ -44,6 +44,7 @@ export const TokenSubType = {
     // value
     LITERAL: 0,
     VARIABLE: 0,
+    PREVIOUS_ANSWER: 0,
 
     // paren
     L_PAREN: 0,

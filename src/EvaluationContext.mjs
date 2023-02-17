@@ -12,6 +12,7 @@ export class EvaluationContext {
         this.functions = new ValueGroup();
         this.useRadians = true;
         this.argumentStack = [];
+        this.previousAnswer = 0;
     }
 }
 

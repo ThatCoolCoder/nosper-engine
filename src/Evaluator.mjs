@@ -21,7 +21,9 @@ export class Evaluator {
     evaluate(expressions) {
         expressions = expressions.split(this.expressionSplitter).map(e => e.trim()).filter(e => e.length > 0);
         var results = expressions.map(e => this.evaluateSingleExpression(e));
-        return results[results.length - 1];
+        var finalAnswer = results[results.length - 1];
+        this.context.previousAnswer = finalAnswer;
+        return finalAnswer;
     }
 
     /**
@@ -56,7 +58,7 @@ export class Evaluator {
 
         // If there is only 1 token left then 
         if (tokens.length == 1) {
-            if (tokens[0].type == TokenType.VALUE) return new ValueNode(tokens[0].value);
+            if (tokens[0].type == TokenType.VALUE) return new ValueNode(tokens[0].value, tokens[0].subType);
             else if (tokens[0].subType == TokenSubType.PARSED_FUNCTION_CALL) return new FunctionCallNode(tokens[0].value, tokens[0].args);
         }
 
