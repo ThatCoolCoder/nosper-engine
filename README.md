@@ -14,4 +14,10 @@ console.log(evaluator.evaluate('5 * 2')); // will print 10
 
 `Evaluator.evaluate()` may throw an `Errors.EvaluationError`. See `src/Errors.mjs` for list of all derived errors, if you wish to handle them separately.
 
-The calculator has a fairly complex input langauge and I ought to add documentation here, but for the time being you can install [nosper-tty](github.com/ThatCoolCoder/nosper-tty) and use its help menu.
+The calculator has a fairly complex input langauge and I ought to add documentation here, but for the time being you can install [nosper-tty](https://github.com/ThatCoolCoder/nosper-tty) and use its help menu.
+
+## Releases
+
+This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
+
+(Maintainers: please update this doc when creating a new release branch)
