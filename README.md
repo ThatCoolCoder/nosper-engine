@@ -1,13 +1,13 @@
 # nosper-engine
 
-Mathematical engine (calculator) library written in Javascript. Should be able to run in both browser and node (browser probably needs work, though).
+Mathematical engine (calculator) library written in Javascript that works in browser environments and in nodejs.
 
 ## Usage:
 
-Add the project as a git submodule. We use ES6 modules so import it as so (works on ):
+Add the project as a git submodule. We use ES6 modules so import it as so: (it's the same for browser and node)
 
 ```javascript
-import { Evaluator } from './nosper-engine/src/Evaluator.mjs';
+import { Evaluator } from 'path/to/nosper-engine/src/Evaluator.mjs';
 var evaluator = new Evaluator();
 console.log(evaluator.evaluate('5 * 2')); // will print 10
 ```

@@ -45,7 +45,11 @@ const UnaryOperator = {
     [TokenSubType.ARC_TANGENT]: (a, ctx) => convertFromRadians(Math.atan(a.evaluate(ctx)), ctx.useRadians),
 
     // Not trig
-    [TokenSubType.SQUARE_ROOT]: (a, ctx) => Math.sqrt(a.evaluate(ctx)),
+    [TokenSubType.SQUARE_ROOT]: (a, ctx) => {
+        var aValue = a.evaluate(ctx);
+        if (aValue < 0) throw new Errors.MathDomainError('Attempted to find square root of negative number; this calculator does not support computation of imaginary numbers');
+        return Math.sqrt(aValue);
+    },
     [TokenSubType.CUBE_ROOT]: (a, ctx) => Math.cbrt(a.evaluate(ctx)),
     [TokenSubType.ABSOLUTE_VALUE]: (a, ctx) => Math.abs(a.evaluate(ctx)),
     [TokenSubType.LOGARITHM]: (a, ctx) => Math.log10(a.evaluate(ctx)),

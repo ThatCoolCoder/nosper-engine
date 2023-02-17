@@ -172,14 +172,22 @@ export class Tokeniser {
         // Convert a subtraction operation into a negation operation in some cases
         var previous = null;
         tokens.forEach((token, idx) => {
-            var previousIsOperator = true;
-            if (idx >= 1) {
-                previousIsOperator = (previous.type == TokenType.UNARY_OPERATOR ||
-                    previous.type == TokenType.BINARY_OPERATOR);
-            }
-            if (previousIsOperator && token.subType == TokenSubType.SUBTRACT) {
-                token.type = TokenType.UNARY_OPERATOR;
-                token.subType = TokenSubType.NEGATE;
+            if (token.subType == TokenSubType.SUBTRACT) {
+                var previousTokenValid = true;
+
+                if (idx >= 1) {
+                    previousTokenValid = (
+                        previous.type == TokenType.UNARY_OPERATOR ||
+                        previous.type == TokenType.BINARY_OPERATOR ||
+                        previous.subType == TokenSubType.L_PAREN ||
+                        previous.subType == TokenSubType.ARGUMENT_SEPARATOR);
+                }
+
+                if (previousTokenValid)
+                {
+                    token.type = TokenType.UNARY_OPERATOR;
+                    token.subType = TokenSubType.NEGATE;
+                }
             }
             previous = token;
         })
