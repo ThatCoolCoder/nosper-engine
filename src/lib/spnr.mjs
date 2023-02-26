@@ -1,6 +1,6 @@
 /*@license
 
-spnr.js v1.8.0
+spnr.js v1.8.1
 
 MIT License
 
@@ -56,14 +56,17 @@ else {
      * @namespace
      */
     var spnr = {}; // Create an object to be the basis of spnr
-    spnr.VERSION = 'v1.8.0';
+    spnr.VERSION = 'v1.8.1';
     spnr.consoleLogHeader = '  🔧🔧 ';
     spnr.consoleLogStyling = 'background-color: #9cc8ff; display: block';
     if (spnrInBrowser && spnrAsMjs) window.spnr = spnr; // Make it global
 
     // Make a 'hello' message
-    console.log(`%c  \n${spnr.consoleLogHeader} spnr.js ${spnr.VERSION}  \n  `,
-        spnr.consoleLogStyling);
+    if (spnrInBrowser)
+    {
+        console.log(`%c  \n${spnr.consoleLogHeader} spnr.js ${spnr.VERSION}  \n  `,
+            spnr.consoleLogStyling);
+    }
 
     // Load the consts & functions from math
     Object.getOwnPropertyNames(Math).forEach(key => {
