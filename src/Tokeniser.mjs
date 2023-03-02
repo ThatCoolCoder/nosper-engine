@@ -213,7 +213,8 @@ export class Tokeniser {
                 currentToken.subType == TokenSubType.R_PAREN;
             var nextTokenOk = nextToken.type == TokenType.VALUE ||
                 nextToken.subType == TokenSubType.L_PAREN || 
-                nextToken.subType == TokenSubType.UNPARSED_FUNCTION_CALL;
+                nextToken.subType == TokenSubType.UNPARSED_FUNCTION_CALL ||
+                nextToken.type == TokenType.UNARY_OPERATOR;
 
             newTokens.push(currentToken);
             if (currentTokenOk && nextTokenOk)
