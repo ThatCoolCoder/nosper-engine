@@ -27,11 +27,34 @@ export class ValueGroup {
         return this.data[valueName] != undefined;
     }
 
+    listData() {
+        return Object.keys(this.data);
+    }
+
     get(valueName) {
         return this.data[valueName];
     }
 
     set(valueName, value) {
         this.data[valueName] = value;
+    }
+
+    delete(valueName) {
+        // Remove a value, returns whether the item existed
+        return delete this.data[valueName];
+    }
+
+    appendGroup(valueGroup) {
+        // Append values from other valueGroup 
+        for (var key of valueGroup.listData()) {
+            this.set(key, valueGroup.get(key));
+        }
+    }
+
+    removeGroup(valueGroup) {
+        // Opposite of appendGroup
+        for (var key of valueGroup.listData()) {
+            this.delete(key);
+        }
     }
 }

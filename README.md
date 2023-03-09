@@ -21,3 +21,7 @@ The calculator has a fairly complex input langauge and I ought to add documentat
 This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
 
 (Maintainers: please update this doc when creating a new release branch)
+
+## Loadables
+
+A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They should be loaded using `Evaluator.load()`. It is the responsibility of the consumer to manage defining, applying or removing them. There is also the possibility of collections of loadables being provided by external libraries. 

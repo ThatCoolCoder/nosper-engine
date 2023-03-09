@@ -41,6 +41,20 @@ export class Evaluator {
         }
     }
 
+    /**
+     * Apply a loadable
+     */
+    load(loadable) {
+        loadable.apply(this.context);
+    }
+
+    /**
+     * Remove a loadable
+     */
+    unload(loadable) {
+        loadable.remove(this.context);
+    }
+
     buildSyntaxTree(tokens) {
         // If there's a function call, convert that that before anything else
         if (this.containsUnparsedFunctionCall(tokens)) {
