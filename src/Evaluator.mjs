@@ -30,10 +30,31 @@ export class Evaluator {
      * Evaluate a single expression
      */
     evaluateSingleExpression(expression) {
+        var compiledExpression = this.compileSingleExpression(expression);
+        return this.evaluateCompiledExpression(compiledExpression);
+    }
+
+    /**
+     * Compile an expression for later use. May throw an EvaulationError
+     */
+    compileSingleExpression(expression) {
         var tokens = this.tokeniser.tokeniseExpression(expression);
         try {
             var syntaxTree = this.buildSyntaxTree(tokens);
-            return syntaxTree.evaluate(this.context);
+            return syntaxTree;
+        }
+        catch (e) {
+            if (e instanceof Errors.EvaluationError) throw e;
+            else throw new Errors.MathSyntaxError();
+        }
+    }
+
+    /**
+     * Evaluate a pre-compiled expression.
+     */
+    evaluateCompiledExpression(compiledExpression) {
+        try {
+            return compiledExpression.evaluate(this.context);
         }
         catch (e) {
             if (e instanceof Errors.EvaluationError) throw e;

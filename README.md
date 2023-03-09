@@ -16,12 +16,18 @@ console.log(evaluator.evaluate('5 * 2')); // will print 10
 
 The calculator has a fairly complex input langauge and I ought to add documentation here, but for the time being you can install [nosper-tty](https://github.com/ThatCoolCoder/nosper-tty) and use its help menu.
 
+## Advanced usage
+
+#### Loadables
+
+A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They should be managed using `evaluatorInstance.load()` and `evaluatorInstance.unload()`. It is the responsibility of the consumer to manage defining, applying or removing them. There is also the possibility of collections of loadables being provided by external libraries.
+
+#### Separate compilation and evaluating
+
+If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `evaluatorInstance.compileSingleExpression()` and then later `evaluatorInstance.evaluateCompiledExpression`. Note that you cannot use a semicolon to insert multiple expressions to `compileSingleExpression`.
+
 ## Releases
 
 This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
 
 (Maintainers: please update this doc when creating a new release branch)
-
-## Loadables
-
-A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They should be loaded using `Evaluator.load()`. It is the responsibility of the consumer to manage defining, applying or removing them. There is also the possibility of collections of loadables being provided by external libraries. 
