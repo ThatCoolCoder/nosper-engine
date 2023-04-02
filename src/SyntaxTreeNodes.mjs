@@ -93,7 +93,7 @@ export class ValueNode extends SyntaxTreeNode {
             var topOfArgumentStack = context.argumentStack[context.argumentStack.length - 1];
             if (topOfArgumentStack != undefined && topOfArgumentStack.isDefined(this.value)) return topOfArgumentStack.get(this.value);
             else if (context.variables.isDefined(this.value)) return context.variables.get(this.value);
-            else throw new Errors.UndefinedVariableError(this.value);
+            else throw new Errors.UndefinedVariableError(this.value, context.functions.isDefined(this.value));
         }
         else if (this.subType == TokenSubType.PREVIOUS_ANSWER)
         {
@@ -144,7 +144,7 @@ export class FunctionCallNode extends SyntaxTreeNode {
             return result;
         }
         else {
-            throw new Errors.UndefinedFunctionError(this.name);
+            throw new Errors.UndefinedFunctionError(this.name, context.variables.isDefined(this.name));
         }
     }
 }

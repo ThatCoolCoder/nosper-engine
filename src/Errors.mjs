@@ -20,13 +20,19 @@ export class MathDomainError extends EvaluationError {
 }
 
 export class UndefinedVariableError extends EvaluationError {
-    constructor(variableName) {
-        super(`Attempted use of undefined variable "${variableName}"`);
+    constructor(variableName, sameNameFunctionExists=false ) {
+        var message = `Attempted use of undefined variable "${variableName}"`;
+        if (sameNameFunctionExists) message += `\n(Note: there is a function with this name. Call it using an & sign: &${variableName}(args))`
+        super(message);
+        this.sameNameFunctionExists = sameNameFunctionExists;
     }
 }
 
 export class UndefinedFunctionError extends EvaluationError {
-    constructor(functionName) {
-        super(`Attempted use of undefined function "${functionName}"`);
+    constructor(functionName, sameNameVariableExists=false) {
+        var message = `Attempted use of undefined function "${functionName}"`;
+        if (sameNameVariableExists) message += `\n(Note: there is a variable with this name. Access it using an $ sign: $${functionName})`
+        super(message);
+        this.sameNameVariableExists = sameNameVariableExists;
     }
 }
