@@ -87,15 +87,26 @@ export class Tokeniser {
             else if (spnr.str.digits.includes(this.crntChar) || this.crntChar == '.') {
                 tokens.push(new Token(TokenType.VALUE, TokenSubType.LITERAL, Number(this.readNumber())));
             }
-            else if (this.crntChar.toLowerCase() == 'e' && spnr.str.digits.includes(this.peekNext())) {
+            else if (this.crntChar.toLowerCase() == 'e' && (
+                spnr.str.digits.includes(this.peekNext()) || 
+                this.peekNext() == '-' && spnr.str.digits.includes(this.peekNext(2))
+                )) {
                 // Try to read number like  E6  (10^6)
                 this.next();
-                var value = 10 ** Number(this.readNumber());
+                if (this.crntChar == '-') {
+                    var isNegative = true;
+                    this.next();
+                }
+                else isNegative = false;
+
+                var exponent = Number(this.readNumber());
+                if (isNegative) exponent *= -1;
+                var value = 10 ** exponent;
                 tokens.push(new Token(TokenType.VALUE, TokenSubType.LITERAL, value));
             }
             else if (this.crntChar == '$') {
                 this.next();
-                tokens.push(new Token(TokenType.VALUE, TokenSubType.VARIABLE, this.readStringWithDigits()));
+                tokens.push(new Token(TokenType.VALUE, TokenSubType.VARIABLE, this.readEntityNameString()));
             }
             else if (this.nextCharsEqualTo('ans'))
             {
@@ -105,7 +116,7 @@ export class Tokeniser {
             // Functions
             else if (this.crntChar == '&') {
                 this.next();
-                tokens.push(new Token(TokenType.FUNCTION_CALL, TokenSubType.UNPARSED_FUNCTION_CALL, this.readString()));
+                tokens.push(new Token(TokenType.FUNCTION_CALL, TokenSubType.UNPARSED_FUNCTION_CALL, this.readEntityNameString()));
             }
             else {
                 this.next();
@@ -156,9 +167,10 @@ export class Tokeniser {
         return stringVal;
     }
 
-    readStringWithDigits() {
+    readEntityNameString() {
+        // Read a function or variable name
         var value = '';
-        while (spnr.str.digits.includes(this.crntChar) || spnr.str.alphabet.includes(this.crntChar)) {
+        while (spnr.str.digits.includes(this.crntChar) || spnr.str.alphabet.includes(this.crntChar) || this.crntChar == '_') {
             value += this.crntChar;
             this.next();
         }

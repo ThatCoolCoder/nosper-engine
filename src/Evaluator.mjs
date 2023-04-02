@@ -8,7 +8,9 @@ import * as Errors from './Errors.mjs';
 export class Evaluator {
     // Entry class. Create one and use it to evaluate math equations
 
-    constructor() {
+    constructor(debugMode=false) {
+        this.debugMode = debugMode; // if debugMode is active, then it will provide ugly error info instead of just a MathSyntaxError
+
         this.context = new EvaluationContext();
         this.tokeniser = new Tokeniser();
 
@@ -44,6 +46,7 @@ export class Evaluator {
             return syntaxTree;
         }
         catch (e) {
+            if (this.debugMode) throw e;
             if (e instanceof Errors.EvaluationError) throw e;
             else throw new Errors.MathSyntaxError();
         }
@@ -57,6 +60,7 @@ export class Evaluator {
             return compiledExpression.evaluate(this.context);
         }
         catch (e) {
+            if (this.debugMode) throw e;
             if (e instanceof Errors.EvaluationError) throw e;
             else throw new Errors.MathSyntaxError();
         }

@@ -1,4 +1,4 @@
-// (run in nodejs, not browser)
+// same as basic calculator but has debug mode on and gives more error info
 
 import * as readline from 'readline';
 import { Evaluator } from '../src/Evaluator.mjs';
@@ -18,10 +18,7 @@ function mainLoop() {
             console.log(evaluator.evaluate(equation));
         }
         catch (e) {
-            if (e instanceof Errors.EvaluationError) {
-                console.log(e.message);
-            }
-            else throw e;
+            console.log(e);
         }
         mainLoop();
     });
