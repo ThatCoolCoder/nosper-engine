@@ -4,7 +4,7 @@ import * as readline from 'readline';
 import { Evaluator } from '../src/Evaluator.mjs';
 import * as Errors from '../src/Errors.mjs';
 
-var evaluator = new Evaluator(true);
+var evaluator = new Evaluator(false);
 
 const rl = readline.createInterface({
     input: process.stdin,

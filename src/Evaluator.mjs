@@ -4,12 +4,16 @@ import { EvaluationContext } from './EvaluationContext.mjs';
 import { Tokeniser } from './Tokeniser.mjs';
 import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode } from './SyntaxTreeNodes.mjs';
 import * as Errors from './Errors.mjs';
+import { start } from 'repl';
 
 export class Evaluator {
     // Entry class. Create one and use it to evaluate math equations
 
+    // Effects of debugMode:
+    // provides ugly error info instead of just a MathSyntaxError
+
     constructor(debugMode=false) {
-        this.debugMode = debugMode; // if debugMode is active, then it will provide ugly error info instead of just a MathSyntaxError
+        this.debugMode = debugMode;
 
         this.context = new EvaluationContext();
         this.tokeniser = new Tokeniser();
@@ -41,8 +45,16 @@ export class Evaluator {
      */
     compileSingleExpression(expression) {
         var tokens = this.tokeniser.tokeniseExpression(expression);
+        if (this.debugMode) {
+            console.log('tokens:');
+            console.log(tokens);
+        }
         try {
             var syntaxTree = this.buildSyntaxTree(tokens);
+            if (this.debugMode) {
+                console.log('syntax tree:');
+                console.log(syntaxTree);
+            }
             return syntaxTree;
         }
         catch (e) {
@@ -95,7 +107,7 @@ export class Evaluator {
             return this.buildSyntaxTree(left.concat(parsedFunctionCall, right));
         }
 
-        // If there is only 1 token left then 
+        // If there is only 1 token left then turn it into a leaf node
         if (tokens.length == 1) {
             if (tokens[0].type == TokenType.VALUE) return new ValueNode(tokens[0].value, tokens[0].subType);
             else if (tokens[0].subType == TokenSubType.PARSED_FUNCTION_CALL) return new FunctionCallNode(tokens[0].value, tokens[0].args);
@@ -107,18 +119,24 @@ export class Evaluator {
         // Then we can remove the brackets and nobody will even notice
         if (this.containsBrackets(tokens)) {
             // Get start/end of most bracketed section
-            var [startIdx, endIdx, nestingLevel] = this.getNestingInfo(tokens);
-            var bracketedTokens = tokens.slice(startIdx + 1, endIdx - 1);
+            var [startIdx, endIdx, nestingLevel] = this.getHighestNestingInfo(tokens);
+            var bracketedTokens = tokens.slice(startIdx + 1, endIdx);
             var precedenceIncrement = spnr.obj.keys(OperatorPrecedence).length;
             for (var token of bracketedTokens) {
-                token.extraPrecedence = nestingLevel * precedenceIncrement;
+                // Only set the precedence on tokens which haven't had it set - 
+                // What this achieves it to only set tokens which are at this nesting level and not higher,
+                // since existing ones will have had it set earlier.
+                if (token.extraPrecedence == 0) {
+                    token.extraPrecedence = nestingLevel * precedenceIncrement;
+                }
             }
             var left = tokens.slice(0, startIdx);
-            var right = tokens.slice(endIdx);
+            var right = tokens.slice(endIdx + 1);
             return this.buildSyntaxTree(left.concat(bracketedTokens).concat(right));
         }
         // When there aren't brackets, find lowest precedence operator, extract it into a node, repeat for lhs and rhs
         else {
+            // return;
             var index = this.findLowestPrecedenceOperator(tokens);
             var left = tokens.slice(0, index);
             var right = tokens.slice(index + 1);
@@ -151,7 +169,9 @@ export class Evaluator {
         return result;
     }
 
-    getNestingInfo(tokens) {
+    getHighestNestingInfo(tokens) {
+        // Get info about what and where is the highest nesting of brackets in the expression.
+        // Indices 
         var crntNestingLevel = 0;
         var highestNestingLevel = 0;
         var highestNestStart = -1;
@@ -167,7 +187,7 @@ export class Evaluator {
             }
             if (token.subType == TokenSubType.R_PAREN) {
                 if (crntNestingLevel == highestNestingLevel) {
-                    highestNestEnd = index + 1;
+                    highestNestEnd = index;
                 }
                 crntNestingLevel --;
             }
