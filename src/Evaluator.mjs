@@ -171,7 +171,7 @@ export class Evaluator {
 
     getHighestNestingInfo(tokens) {
         // Get info about what and where is the highest nesting of brackets in the expression.
-        // Indices 
+        // Indices are those of the opening/closing brackets (not the content of the brackets)
         var crntNestingLevel = 0;
         var highestNestingLevel = 0;
         var highestNestStart = -1;
