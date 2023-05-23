@@ -36,3 +36,11 @@ export class UndefinedFunctionError extends EvaluationError {
         this.sameNameVariableExists = sameNameVariableExists;
     }
 }
+
+export class UnmatchedBracketError extends EvaluationError {
+    constructor(wasNotClosed) {
+        var innerMessage = wasNotClosed ? 'A bracket was opened but not closed'
+            : 'A close bracket was found with no corresponding opening bracket';
+        super(`Unmatched brackets: ${innerMessage}`);
+    }
+}

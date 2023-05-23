@@ -10,7 +10,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('Enter an equation in terms of $x: ', function (equation) {
+rl.question('Enter an equation in terms of $x: ', equation => {
     var compiled = evaluator.compileSingleExpression(equation);
     for (var i = 0; i < 10; i ++) {
         evaluator.context.variables.set('x', i);

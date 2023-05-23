@@ -93,18 +93,35 @@ export class Evaluator {
     }
 
     buildSyntaxTree(tokens) {
+        
+        // Check - if the brackets match todo: should this be in its own function?
+        var nestingIndex = this.buildNestingIndex(tokens);
+        var keys = spnr.obj.keys(nestingIndex);
+        keys.sort();
+        if (keys.length > 0) {
+            var finalNesting = nestingIndex[keys[keys.length - 1]];
+            if (finalNesting != 0) throw new Errors.UnmatchedBracketError(finalNesting > 0);
+        }
+
+
+        return this.buildSyntaxTreeInner(tokens);
+    }
+
+    buildSyntaxTreeInner(tokens) {
+        // (Actual bit that does the building, recursive)
+
         // If there's a function call, convert that that before anything else
         if (this.containsUnparsedFunctionCall(tokens)) {
             var functionIndex = tokens.findIndex(t => t.type == TokenType.FUNCTION_CALL);
             var closeBracketIndex = this.findMatchingBracket(tokens, functionIndex + 1);
             var args = this.splitWhere(tokens.slice(functionIndex + 2, closeBracketIndex), t => t.subType == TokenSubType.ARGUMENT_SEPARATOR);
 
-            var parsedArgs = args.map(arg => this.buildSyntaxTree(arg));
+            var parsedArgs = args.map(arg => this.buildSyntaxTreeInner(arg));
 
             var parsedFunctionCall = new ParsedFunctionCallToken(TokenType.FUNCTION_CALL, TokenSubType.PARSED_FUNCTION_CALL, tokens[functionIndex].value, parsedArgs);
             var left = tokens.slice(0, functionIndex);
             var right = tokens.slice(closeBracketIndex + 1);
-            return this.buildSyntaxTree(left.concat(parsedFunctionCall, right));
+            return this.buildSyntaxTreeInner(left.concat(parsedFunctionCall, right));
         }
 
         // If there is only 1 token left then turn it into a leaf node
@@ -132,7 +149,7 @@ export class Evaluator {
             }
             var left = tokens.slice(0, startIdx);
             var right = tokens.slice(endIdx + 1);
-            return this.buildSyntaxTree(left.concat(bracketedTokens).concat(right));
+            return this.buildSyntaxTreeInner(left.concat(bracketedTokens).concat(right));
         }
         // When there aren't brackets, find lowest precedence operator, extract it into a node, repeat for lhs and rhs
         else {
@@ -141,9 +158,9 @@ export class Evaluator {
             var left = tokens.slice(0, index);
             var right = tokens.slice(index + 1);
             if (tokens[index].type == TokenType.BINARY_OPERATOR)
-                return new BinaryOperatorNode(this.buildSyntaxTree(left), this.buildSyntaxTree(right), tokens[index].subType);
+                return new BinaryOperatorNode(this.buildSyntaxTreeInner(left), this.buildSyntaxTreeInner(right), tokens[index].subType);
             else if (tokens[index].type == TokenType.UNARY_OPERATOR)
-                return new UnaryOperatorNode(this.buildSyntaxTree(right), tokens[index].subType);
+                return new UnaryOperatorNode(this.buildSyntaxTreeInner(right), tokens[index].subType);
         }
     }
 
@@ -167,6 +184,27 @@ export class Evaluator {
         }
         if (crntChunk.length > 0) result.push(crntChunk);
         return result;
+    }
+
+    buildNestingIndex(tokens) {
+        // Computes the indices at which the nesting level changes
+        // Returned structure is a dictionary with key equal to index of bracket,
+        // and value equal to nesting level immediately after that bracket
+
+        var nestingIndex = {};
+        var crntNestingLevel = 0;
+        for (var i = 0; i < tokens.length; i ++) {
+            var token = tokens[i];
+            if (token.subType == TokenSubType.L_PAREN) {
+                crntNestingLevel ++;
+                nestingIndex[i] = crntNestingLevel;
+            }
+            else if (token.subType == TokenSubType.R_PAREN) {
+                crntNestingLevel --;
+                nestingIndex[i] = crntNestingLevel;
+            }
+        }
+        return nestingIndex;
     }
 
     getHighestNestingInfo(tokens) {
