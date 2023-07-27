@@ -22,6 +22,7 @@ export const TokenSubType = {
     EXPONENTIATE: 0,
     ASSIGN: 0,
     FUNCTION_ASSIGN: 0,
+    IF: 0,
 
     // unary operator: trig
     NEGATE: 0,
@@ -65,6 +66,7 @@ export const OperatorPrecedence = {
     [TokenSubType.FUNCTION_ASSIGN]: 0,
     [TokenSubType.ADD]: 1,
     [TokenSubType.SUBTRACT]: 1,
+    [TokenSubType.IF] : 1.5, // all numbers are floats so we might as well use them
     [TokenSubType.MULTIPLY]: 2,
     [TokenSubType.DIVIDE]: 2,
     [TokenSubType.MODULO]: 2,

@@ -15,6 +15,7 @@ export class Tokeniser {
         '%': TokenSubType.MODULO,
         '**': TokenSubType.EXPONENTIATE,
         '^': TokenSubType.EXPONENTIATE,
+        '?': TokenSubType.IF,
         // Binary operator: assign
         '=': TokenSubType.ASSIGN,
         '=>': TokenSubType.FUNCTION_ASSIGN,
@@ -54,8 +55,8 @@ export class Tokeniser {
 
         while (this.charIdx < expression.length) {
             // Basic operators & symbols
-            if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']) != null) {
-                var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '=>', '=', 'x']);
+            if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '?', '=>', '=', 'x']) != null) {
+                var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '?', '=>', '=', 'x']);
                 tokens.push(new Token(TokenType.BINARY_OPERATOR,
                     this.StringToTokenSubType[text], text));
                 this.next(text.length);

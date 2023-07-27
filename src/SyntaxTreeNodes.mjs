@@ -31,6 +31,10 @@ const BinaryOperator = {
     [TokenSubType.FUNCTION_ASSIGN]: (a, b, ctx) => {
         ctx.functions.set(a.value, b);
         return 0;
+    },
+    [TokenSubType.IF]: (a, b, ctx) => {
+        if (a.evaluate(ctx) > 0) return b.evaluate(ctx);
+        else return 0; 
     }
 }
 
