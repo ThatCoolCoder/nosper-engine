@@ -104,7 +104,7 @@ export class Evaluator {
         }
 
 
-        return this.buildSyntaxTreeInner(tokens);
+        return this.buildSyntaxTreeInner(tokens, 10);
     }
 
     buildSyntaxTreeInner(tokens) {
@@ -112,7 +112,7 @@ export class Evaluator {
 
         // If there's a function call, convert that that before anything else
         if (this.containsUnparsedFunctionCall(tokens)) {
-            var functionIndex = tokens.findIndex(t => t.type == TokenType.FUNCTION_CALL);
+            var functionIndex = tokens.findIndex(t => t.subType == TokenSubType.UNPARSED_FUNCTION_CALL);
             var closeBracketIndex = this.findMatchingBracket(tokens, functionIndex + 1);
             var args = this.splitWhere(tokens.slice(functionIndex + 2, closeBracketIndex), t => t.subType == TokenSubType.ARGUMENT_SEPARATOR);
 
