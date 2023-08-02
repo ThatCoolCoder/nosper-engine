@@ -96,8 +96,8 @@ export class Evaluator {
         
         // Check - if the brackets match todo: should this be in its own function?
         var nestingIndex = this.buildNestingIndex(tokens);
-        var keys = spnr.obj.keys(nestingIndex);
-        keys.sort();
+        var keys = spnr.obj.keys(nestingIndex).map(x => Number(x));
+        keys.sort((a, b) => a - b); // damn you javascript
         if (keys.length > 0) {
             var finalNesting = nestingIndex[keys[keys.length - 1]];
             if (finalNesting != 0) throw new Errors.UnmatchedBracketError(finalNesting > 0);
