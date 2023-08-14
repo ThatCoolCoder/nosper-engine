@@ -18,6 +18,7 @@ export const TokenSubType = {
     SUBTRACT: 0,
     MULTIPLY: 0,
     DIVIDE: 0,
+    DIVIDE_LOW_PRECEDENCE: 0,
     MODULO: 0,
     EXPONENTIATE: 0,
     ASSIGN: 0,
@@ -66,6 +67,7 @@ export const OperatorPrecedence = {
     [TokenSubType.FUNCTION_ASSIGN]: 0,
     [TokenSubType.ADD]: 1,
     [TokenSubType.SUBTRACT]: 1,
+    [TokenSubType.DIVIDE_LOW_PRECEDENCE]: 1,
     [TokenSubType.IF] : 1.5, // all numbers are floats so we might as well use them
     [TokenSubType.MULTIPLY]: 2,
     [TokenSubType.DIVIDE]: 2,

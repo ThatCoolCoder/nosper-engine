@@ -9,8 +9,10 @@ export class Tokeniser {
         // Binary operator
         '+': TokenSubType.ADD,
         '-': TokenSubType.SUBTRACT,
+        '**': TokenSubType.EXPONENTIATE,
         'x': TokenSubType.MULTIPLY,
         '*': TokenSubType.MULTIPLY,
+        '//': TokenSubType.DIVIDE_LOW_PRECEDENCE,
         '/': TokenSubType.DIVIDE,
         '%': TokenSubType.MODULO,
         '**': TokenSubType.EXPONENTIATE,
@@ -53,23 +55,16 @@ export class Tokeniser {
         this.expression = expression;
         var tokens = [];
 
+        const basicBinaryOperators = ['+', '-', '**', '*', '//', '/', '%', '^', '?', '=>', '=', 'x'];
+        const basicUnaryOperators = ['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln'];
+
         while (this.charIdx < expression.length) {
             // Basic operators & symbols
-            if (this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '?', '=>', '=', 'x']) != null) {
-                var text = this.nextCharsEqualToAny(['+', '-', '/', '%', '^', '?', '=>', '=', 'x']);
+            if (this.nextCharsEqualToAny(basicBinaryOperators) != null) {
+                var text = this.nextCharsEqualToAny(basicBinaryOperators);
                 tokens.push(new Token(TokenType.BINARY_OPERATOR,
                     this.StringToTokenSubType[text], text));
                 this.next(text.length);
-            }
-            else if (this.crntChar == '*') {
-                if (this.nextCharsEqualTo('**')) {
-                    tokens.push(new Token(TokenType.BINARY_OPERATOR, TokenSubType.EXPONENTIATE, '**'));
-                    this.next(2);
-                }
-                else {
-                    tokens.push(new Token(TokenType.BINARY_OPERATOR, TokenSubType.MULTIPLY, '*'));
-                    this.next();
-                }
             }
             else if ('()'.includes(this.crntChar)) {
                 tokens.push(new Token(TokenType.PAREN, this.StringToTokenSubType[this.crntChar], this.crntChar));
@@ -79,8 +74,8 @@ export class Tokeniser {
                 tokens.push(new Token(TokenType.SEPARATOR, TokenSubType.ARGUMENT_SEPARATOR, this.crntChar));
                 this.next();
             }
-            else if (this.nextCharsEqualToAny(['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln', ]) != null) {
-                var text = this.nextCharsEqualToAny(['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln']);
+            else if (this.nextCharsEqualToAny(basicUnaryOperators) != null) {
+                var text = this.nextCharsEqualToAny(basicUnaryOperators);
                 tokens.push(new Token(TokenType.UNARY_OPERATOR, this.StringToTokenSubType[text], text));
                 this.next(text.length);
             }

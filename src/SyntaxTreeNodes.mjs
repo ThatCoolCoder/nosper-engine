@@ -12,6 +12,11 @@ const BinaryOperator = {
         if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
         return a.evaluate(ctx) / bValue;
     },
+    [TokenSubType.DIVIDE_LOW_PRECEDENCE]: (a, b, ctx) => {
+        var bValue = b.evaluate(ctx);
+        if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
+        return a.evaluate(ctx) / bValue;
+    },
     [TokenSubType.MODULO]: (a, b, ctx) => {
         var bValue = b.evaluate(ctx);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot modulo by 0');
