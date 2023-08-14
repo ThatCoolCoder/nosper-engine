@@ -18,6 +18,8 @@ export class Tokeniser {
         '**': TokenSubType.EXPONENTIATE,
         '^': TokenSubType.EXPONENTIATE,
         '?': TokenSubType.IF,
+        '!?': TokenSubType.NOT_IF,
+
         // Binary operator: assign
         '=': TokenSubType.ASSIGN,
         '=>': TokenSubType.FUNCTION_ASSIGN,
@@ -55,7 +57,7 @@ export class Tokeniser {
         this.expression = expression;
         var tokens = [];
 
-        const basicBinaryOperators = ['+', '-', '**', '*', '//', '/', '%', '^', '?', '=>', '=', 'x'];
+        const basicBinaryOperators = ['+', '-', '**', '*', '//', '/', '%', '^', '?', '!?', '=>', '=', 'x'];
         const basicUnaryOperators = ['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln'];
 
         while (this.charIdx < expression.length) {

@@ -40,6 +40,10 @@ const BinaryOperator = {
     [TokenSubType.IF]: (a, b, ctx) => {
         if (a.evaluate(ctx) > 0) return b.evaluate(ctx);
         else return 0; 
+    },
+    [TokenSubType.NOT_IF]: (a, b, ctx) => {
+        if (a.evaluate(ctx) == 0) return b.evaluate(ctx);
+        else return 0; 
     }
 }
 
