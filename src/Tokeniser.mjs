@@ -43,6 +43,9 @@ export class Tokeniser {
         'cbrt': TokenSubType.CUBE_ROOT,
         'c': TokenSubType.CUBE_ROOT,
 
+        // Unary operator: postfix
+        '!': TokenSubType.FACTORIAL,
+
         // Value
         // <none>
 
@@ -59,6 +62,7 @@ export class Tokeniser {
 
         const basicBinaryOperators = ['+', '-', '**', '*', '//', '/', '%', '^', '?', '!?', '=>', '=', 'x'];
         const basicUnaryOperators = ['sin', 'asin', 'cos', 'acos', 'tan', 'atan', 'round', 'floor', 'ceil', 'sqrt', 'q', 'cbrt', 'c', 'abs', 'log', 'ln'];
+        const basicPostfixUnaryOperators = ['!'];
 
         while (this.charIdx < expression.length) {
             // Basic operators & symbols
@@ -79,6 +83,11 @@ export class Tokeniser {
             else if (this.nextCharsEqualToAny(basicUnaryOperators) != null) {
                 var text = this.nextCharsEqualToAny(basicUnaryOperators);
                 tokens.push(new Token(TokenType.UNARY_OPERATOR, this.StringToTokenSubType[text], text));
+                this.next(text.length);
+            }
+            else if (this.nextCharsEqualToAny(basicPostfixUnaryOperators) != null) {
+                var text = this.nextCharsEqualToAny(basicPostfixUnaryOperators);
+                tokens.push(new Token(TokenType.POSTFIX_UNARY_OPERATOR, this.StringToTokenSubType[text], text));
                 this.next(text.length);
             }
             // Values

@@ -3,6 +3,7 @@ import { spnr } from './lib/spnr.mjs'
 export const TokenType = {
     BINARY_OPERATOR: 0,
     UNARY_OPERATOR: 0,
+    POSTFIX_UNARY_OPERATOR: 0,
     VALUE: 0,
     PAREN: 0,
     FUNCTION_CALL: 0,
@@ -43,6 +44,8 @@ export const TokenSubType = {
     ROUND: 0,
     FLOOR: 0,
     CEILING: 0,
+    // unary operator: postfix
+    FACTORIAL: 0,
 
     // value
     LITERAL: 0,
@@ -75,6 +78,7 @@ export const OperatorPrecedence = {
     [TokenSubType.DIVIDE]: 2,
     [TokenSubType.MODULO]: 2,
     [TokenSubType.EXPONENTIATE]: 3,
+    [TokenSubType.FACTORIAL]: 3,
 
     [TokenSubType.NEGATE]: 4,
     [TokenSubType.SINE]: 4,

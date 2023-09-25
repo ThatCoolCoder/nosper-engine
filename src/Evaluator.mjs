@@ -2,7 +2,7 @@ import { spnr } from './lib/spnr.mjs'
 import { Token, TokenSubType, TokenType, OperatorPrecedence, ParsedFunctionCallToken } from './Token.mjs';
 import { EvaluationContext } from './EvaluationContext.mjs';
 import { Tokeniser } from './Tokeniser.mjs';
-import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode } from './SyntaxTreeNodes.mjs';
+import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode, PostfixUnaryOperatorNode } from './SyntaxTreeNodes.mjs';
 import * as Errors from './Errors.mjs';
 import { start } from 'repl';
 
@@ -153,14 +153,16 @@ export class Evaluator {
         }
         // When there aren't brackets, find lowest precedence operator, extract it into a node, repeat for lhs and rhs
         else {
-            // return;
             var index = this.findLowestPrecedenceOperator(tokens);
+            console.log(tokens[index]);
             var left = tokens.slice(0, index);
             var right = tokens.slice(index + 1);
             if (tokens[index].type == TokenType.BINARY_OPERATOR)
                 return new BinaryOperatorNode(this.buildSyntaxTreeInner(left), this.buildSyntaxTreeInner(right), tokens[index].subType);
             else if (tokens[index].type == TokenType.UNARY_OPERATOR)
                 return new UnaryOperatorNode(this.buildSyntaxTreeInner(right), tokens[index].subType);
+            else if (tokens[index].type == TokenType.POSTFIX_UNARY_OPERATOR)
+                return new PostfixUnaryOperatorNode(this.buildSyntaxTreeInner(left), tokens[index].subType);
         }
     }
 

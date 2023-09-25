@@ -70,6 +70,19 @@ const UnaryOperator = {
     [TokenSubType.ROUND]: (a, ctx) => Math.round(a.evaluate(ctx)),
     [TokenSubType.FLOOR]: (a, ctx) => Math.floor(a.evaluate(ctx)),
     [TokenSubType.CEILING]: (a, ctx) => Math.ceil(a.evaluate(ctx)),
+
+    // Postfix
+    [TokenSubType.FACTORIAL] : (a, ctx) => {
+        var aValue = a.evaluate(ctx);
+        if (aValue < 0) throw new Errors.MathDomainError('Factorial function is undefined for negative numbers');
+
+        var total = 1;
+        for (var i = 2; i <= aValue; i ++) {
+            total *= i;
+        }
+        return total;
+        // todo: correct handling of decimal numbers
+    }
 }
 
 function convertToRadians(angle, isRadians) {
@@ -139,6 +152,19 @@ export class UnaryOperatorNode extends SyntaxTreeNode {
         return UnaryOperator[this.operatorSubType](this.right, context);
     }
 }
+
+export class PostfixUnaryOperatorNode extends SyntaxTreeNode {
+    constructor(left, operatorSubType) {
+        super();
+        this.left = left;
+        this.operatorSubType = operatorSubType;
+    }
+
+    evaluate(context) {
+        return UnaryOperator[this.operatorSubType](this.left, context);
+    }
+}
+
 
 export class FunctionCallNode extends SyntaxTreeNode {
     constructor(name, args) {
