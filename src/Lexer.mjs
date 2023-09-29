@@ -5,7 +5,6 @@ export class Lexer {
     // Class to tokenise string (not thread-safe)
 
     tokeniseExpression(expression) {
-        console.log('--', expression);
         this.charIdx = 0;
         this.crntChar = expression[0]
         this.expression = expression;
@@ -45,12 +44,14 @@ export class Lexer {
     }
 
     readNumber() {
+        // Yes this is long. But it is hopefully fairly readable and it is quite capable.
+
         var mainNumberVal = '';
         var exponentVal = '';
         var exponentIsNegative = false;
         var periodCount = 0;
         var isReadingExponent = false;
-        while (true) {
+        while (this.charIdx < this.expression.length) {
             if (! isReadingExponent) {
                 // Don't allow multiple
                 if (this.crntChar == '.') periodCount ++;
@@ -61,19 +62,18 @@ export class Lexer {
                 }
                 
                 // Check if main number part is done
-                var nextIsNumber = spnr.str.digits.includes(this.peekNext(2));
-                var nextIsNegativeNumber = this.peekNext(2) == '-' && spnr.str.digits.includes(this.peekNext(2));
+                var nextIsNumber = spnr.str.digits.includes(this.peekNext(1));
+                var nextIsNegativeNumber = this.peekNext(1) == '-' && spnr.str.digits.includes(this.peekNext(2));
                 if (this.crntChar == 'e' && (nextIsNumber || nextIsNegativeNumber))
                 {
                     exponentIsNegative = nextIsNegativeNumber;
                     isReadingExponent = true;
-                    this.next(exponentIsNegative ? 3 : 2); // skip over the e (and optional -) completely
+                    this.next(exponentIsNegative ? 2 : 1); // skip over the e (and optional -) completely
                     continue;
                 }
 
                 if (this.crntChar == '.' || spnr.str.digits.includes(this.crntChar))
                 {
-                    console.log(this.crntChar);
                     mainNumberVal += this.crntChar;
                     this.next();
                 }
@@ -92,11 +92,10 @@ export class Lexer {
                     break;
                 }
             }
-            this.next();
         }
-        console.log(mainNumberVal, '^', exponentVal);
-        if (mainNumberVal == '') mainNumberVal = '1'; // prevent exponent-only numbers equalling 0
-        return Number(mainNumberVal) * 10 ** (Number(exponentVal) * exponentIsNegative ? -1 : 1);
+        if (mainNumberVal.trim() == '') mainNumberVal = '1'; // prevent exponent-only numbers equalling 0
+
+        return Number(mainNumberVal) * 10 ** (Number(exponentVal) * (exponentIsNegative ? -1 : 1));
     }
 
     readIdentifier() {
@@ -172,13 +171,3 @@ export class Lexer {
         return newTokens;
     }
 }
-
-// test number reading
-
-new Lexer().tokeniseExpression('50.2')
-// new Lexer().tokeniseExpression('.2')
-// new Lexer().tokeniseExpression('50.')
-// new Lexer().tokeniseExpression('e3')
-// new Lexer().tokeniseExpression('5e3')
-// new Lexer().tokeniseExpression('e-3')
-// new Lexer().tokeniseExpression('5e-3')
