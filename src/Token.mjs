@@ -1,9 +1,14 @@
-import { spnr } from './lib/spnr.mjs'
+import { spnr } from './lib/spnr.mjs';
+
+// A note on token types & subtypes:
+// We could do with only subtypes, but we have types as well just to make comparisons and checks briefer - instead of checking for every single operator.
+// If there is a token type which needs no subtypes, give it subtype NONE
 
 export const TokenType = {
+    ASSIGN: 0, // yes one could argue that this is a binary operator but assign needs special-case parsing later so might as well make it special now
     BINARY_OPERATOR: 0,
-    UNARY_OPERATOR: 0,
-    POSTFIX_UNARY_OPERATOR: 0,
+    PREFIX_OPERATOR: 0,
+    POSTFIX_OPERATOR: 0,
     VALUE: 0,
     PAREN: 0,
     FUNCTION_CALL: 0,
@@ -12,7 +17,9 @@ export const TokenType = {
 spnr.obj.toEnum(TokenType, true);
 
 export const TokenSubType = {
-    OTHER: 0,
+    NONE: 0,
+    
+    // None for assign
 
     // binary operator
     ADD: 0,
@@ -22,20 +29,22 @@ export const TokenSubType = {
     DIVIDE_LOW_PRECEDENCE: 0,
     MODULO: 0,
     EXPONENTIATE: 0,
-    ASSIGN: 0,
-    FUNCTION_ASSIGN: 0,
     IF: 0,
     NOT_IF: 0,
 
-    // unary operator: trig
-    NEGATE: 0,
+    // prefix operator: trig
     SINE: 0,
     ARC_SINE: 0,
+    COSECANT: 0,
     COSINE: 0,
     ARC_COSINE: 0,
+    SECANT: 0,
     TANGENT: 0,
     ARC_TANGENT: 0,
-    // unary operator: not trig
+    COTANGENT: 0,
+
+    // prefix operator: not trig
+    NEGATE: 0,
     SQUARE_ROOT: 0,
     CUBE_ROOT: 0,
     ABSOLUTE_VALUE: 0,
@@ -44,31 +53,30 @@ export const TokenSubType = {
     ROUND: 0,
     FLOOR: 0,
     CEILING: 0,
-    // unary operator: postfix
+    // postfix operator:
     FACTORIAL: 0,
 
     // value
     LITERAL: 0,
-    VARIABLE: 0,
+    IDENTIFIER: 0, // Generally a variable but can also be a function name in function definition
     PREVIOUS_ANSWER: 0,
 
     // paren
     L_PAREN: 0,
+    L_SQUARE_PAREN: 0,
     R_PAREN: 0,
+    R_SQUARE_PAREN: 0,
 
-    // function call
-    UNPARSED_FUNCTION_CALL: 0,
-    PARSED_FUNCTION_CALL: 0,
+    // None for function call
 
     // separator
-    ARGUMENT_SEPARATOR: 0
+    COMMA: 0,
+    SEMICOLON: 0
 }
 spnr.obj.toEnum(TokenSubType, true);
 
 // Higher precedence = evaluated first
 export const OperatorPrecedence = {
-    [TokenSubType.ASSIGN]: 0,
-    [TokenSubType.FUNCTION_ASSIGN]: 0,
     [TokenSubType.ADD]: 1,
     [TokenSubType.SUBTRACT]: 1,
     [TokenSubType.DIVIDE_LOW_PRECEDENCE]: 1,
@@ -77,24 +85,29 @@ export const OperatorPrecedence = {
     [TokenSubType.MULTIPLY]: 2,
     [TokenSubType.DIVIDE]: 2,
     [TokenSubType.MODULO]: 2,
-    [TokenSubType.EXPONENTIATE]: 3,
-    [TokenSubType.FACTORIAL]: 3,
 
-    [TokenSubType.NEGATE]: 4,
-    [TokenSubType.SINE]: 4,
-    [TokenSubType.ARC_SINE]: 4,
-    [TokenSubType.COSINE]: 4,
-    [TokenSubType.ARC_COSINE]: 4,
-    [TokenSubType.TANGENT]: 4,
-    [TokenSubType.ARC_TANGENT]: 4,
-    [TokenSubType.SQUARE_ROOT]: 4,
-    [TokenSubType.CUBE_ROOT]: 4,
-    [TokenSubType.ABSOLUTE_VALUE]: 4,
-    [TokenSubType.LOGARITHM]: 4,
-    [TokenSubType.NATURAL_LOGARITHM]: 4,
-    [TokenSubType.ROUND]: 4,
-    [TokenSubType.FLOOR]: 4,
-    [TokenSubType.CEILING]: 4,
+    [TokenSubType.SINE]: 3,
+    [TokenSubType.ARC_SINE]: 3,
+    [TokenSubType.COSECANT]: 3,
+    [TokenSubType.COSINE]: 3,
+    [TokenSubType.ARC_COSINE]: 3,
+    [TokenSubType.SECANT] : 3,
+    [TokenSubType.TANGENT]: 3,
+    [TokenSubType.ARC_TANGENT]: 3,
+    [TokenSubType.COTANGENT]: 3,
+
+    [TokenSubType.NEGATE]: 3,
+    [TokenSubType.SQUARE_ROOT]: 3,
+    [TokenSubType.CUBE_ROOT]: 3,
+    [TokenSubType.ABSOLUTE_VALUE]: 3,
+    [TokenSubType.LOGARITHM]: 3,
+    [TokenSubType.NATURAL_LOGARITHM]: 3,
+    [TokenSubType.ROUND]: 3,
+    [TokenSubType.FLOOR]: 3,
+    [TokenSubType.CEILING]: 3,
+
+    [TokenSubType.EXPONENTIATE]: 4,
+    [TokenSubType.FACTORIAL]: 4,
 
 }
 
