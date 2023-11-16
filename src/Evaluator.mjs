@@ -154,7 +154,6 @@ export class Evaluator {
         // When there aren't brackets, find lowest precedence operator, extract it into a node, repeat for lhs and rhs
         else {
             var index = this.findLowestPrecedenceOperator(tokens);
-            console.log(tokens[index]);
             var left = tokens.slice(0, index);
             var right = tokens.slice(index + 1);
             if (tokens[index].type == TokenType.BINARY_OPERATOR)
