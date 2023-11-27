@@ -1,7 +1,7 @@
 import { spnr } from './lib/spnr.mjs'
 import { Token, TokenSubType, TokenType, OperatorPrecedence, ParsedFunctionCallToken } from './Token.mjs';
 import { EvaluationContext } from './EvaluationContext.mjs';
-import { Tokeniser } from './Tokeniser.mjs';
+import { Tokeniser } from './tokenise.mjs';
 import { ValueNode, UnaryOperatorNode, BinaryOperatorNode, FunctionCallNode, PostfixUnaryOperatorNode } from './SyntaxTreeNodes.mjs';
 import * as Errors from './Errors.mjs';
 import { start } from 'repl';

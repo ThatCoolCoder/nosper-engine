@@ -1,0 +1,75 @@
+// Output of lexer.
+// Perhaps lexeme is not "correct" term but I think it makes sense
+
+import { spnr } from './lib/spnr.mjs';
+
+export const LexemeType = {
+    BINARY_OPERATOR,
+    PREFIX_OPERATOR,
+    POSTFIX_OPERATOR,
+    TERNARY_OPERATOR,
+    VALUE,
+    PAREN,
+};
+spnr.obj.toEnum(LexemeType);
+
+export const LexemeSubType = {
+    NONE: 0,
+
+    // binary operator
+    ADD: 0,
+    SUBTRACT: 0,
+    MULTIPLY: 0,
+    DIVIDE: 0,
+    DIVIDE_LOW_PRECEDENCE: 0,
+    MODULO: 0,
+    EXPONENTIATE: 0,
+
+    // prefix operator: trig
+    SINE: 0,
+    ARC_SINE: 0,
+    COSECANT: 0,
+    COSINE: 0,
+    ARC_COSINE: 0,
+    SECANT: 0,
+    TANGENT: 0,
+    ARC_TANGENT: 0,
+    COTANGENT: 0,
+
+    // prefix operator: not trig
+    NEGATE: 0,
+    SQUARE_ROOT: 0,
+    CUBE_ROOT: 0,
+    ABSOLUTE_VALUE: 0,
+    LOGARITHM: 0,
+    NATURAL_LOGARITHM: 0,
+    ROUND: 0,
+    FLOOR: 0,
+    CEILING: 0,
+
+    // postfix operator:
+    FACTORIAL: 0,
+
+    // ternary operator:
+    TERNARY_IF_ELSE: 0,
+
+    // value
+    LITERAL: 0,
+    VARIABLE: 0, 
+    PREVIOUS_ANSWER: 0,
+
+    // paren
+    L_PAREN: 0,
+    L_CURLY_PAREN: 0,
+    R_PAREN: 0,
+    R_CURLY_PAREN: 0,
+};
+spnr.obj.toEnum(LexemeSubType);
+
+export class Lexeme {
+    constructor(type, subType, value) {
+        this.type = type;
+        this.subType = subType;
+        this.value = value;
+    }
+}
