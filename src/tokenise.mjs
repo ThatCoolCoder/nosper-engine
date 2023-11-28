@@ -1,5 +1,13 @@
 import { spnr } from './lib/spnr.mjs'
-import { Token, TokenType, TokenSubType } from "./Token.mjs";
+import { Token, TokenType } from "./Token.mjs";
+
+const numberChars = [...spnr.str.digits, '.'];
+const symbolicOperatorChars = '+-*/^%!'.split('');
+const parenChars = '(){}'.split('');
+const whitespaceChars = ' '.split('');
+
+const textStartChars = [...spnr.str.alphabet, '_'];
+const textRestChars = [...spnr.str.alphabet, ...spnr.str.digits, '_'];
 
 export default function tokenise(expression) {
     // yes perhaps it is weird to write this as a function instead of a class,
@@ -11,11 +19,30 @@ export default function tokenise(expression) {
     var tokens = [];
     
     while (charIdx < expression.length) {
-        console.log(readNumber());
-        break;
+        if (numberChars.includes(crntChar)) {
+            tokens.push(new Token(TokenType.NUMBER, readNumber()));
+        }
+        else if (symbolicOperatorChars.includes(crntChar)) {
+            tokens.push(new Token(TokenType.SYMBOLIC_OPERATOR, readSymbolicOperators()))
+        }
+        else if (whitespaceChars.includes(crntChar)) {
+            skipWhitespace();
+        }
+        else if (parenChars.includes(crntChar)) {
+            tokens.push(new Token(TokenType.PAREN, crntChar));
+            next();
+        }
+        else if (textStartChars.includes(crntChar)) {
+            tokens.push(new Token(TokenType.TEXT, readText()));
+        }
+        else {
+            throw new Error(`Unexpected character while parsing: "${crntChar}"`);
+        }
     }
 
     return tokens;
+
+
 
     function next(amount = 1) {
         charIdx += amount;
@@ -90,13 +117,32 @@ export default function tokenise(expression) {
         return Number(mainNumberVal) * 10 ** (Number(exponentVal) * (exponentIsNegative ? -1 : 1));
     }
 
-    function readIdentifier() {
-        // Read a function or variable name
+    function readSymbolicOperators() {
+        var result = '';
+        while (charIdx < expression.length) {
+            result += crntChar;
+            next();
+            if (!symbolicOperatorChars.includes(crntChar)) break;
+        }
+        return result;
+    }
+
+    function skipWhitespace() {
+        while (whitespaceChars.includes(crntChar) && charIdx < expression.length) next();
+    }
+
+    function readText() {
         var value = '';
-        while (spnr.str.digits.includes(crntChar) || spnr.str.alphabet.includes(crntChar) || crntChar == '_') {
+
+        var crntCharSet = textStartChars;
+        while (crntCharSet.includes(crntChar) && charIdx < expression.length) {
             value += crntChar;
+            if (crntChar == '_') {
+                crntCharSet = textRestChars;
+            }
             next();
         }
+
         return value;
     }
 
