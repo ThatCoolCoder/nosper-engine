@@ -17,8 +17,13 @@ const symbolicOperatorLookup = {
     '!' : [LexemeType.POSTFIX_OPERATOR, LexemeSubType.FACTORIAL],
 };
 
-const textOperatorLookup = {
+const textValueLookup = {
     'ans' : [LexemeType.VALUE, LexemeSubType.PREVIOUS_ANSWER],
+    'pi' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
+    'tau' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
+    'e' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
+    'phi' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
+    'silv' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
 
     'sin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.SINE],
     'asin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ARC_SINE],
@@ -111,7 +116,7 @@ export default function lex(tokens) {
         var result = [];
 
         while (!ctx.finished) {
-            var found = greedyFindFirst(ctx.remaining, spnr.obj.keys(textOperatorLookup));
+            var found = greedyFindFirst(ctx.remaining, spnr.obj.keys(textValueLookup));
             if (found == null) {
                 // Person has not typed an operator - read variable
                 var varName = ctx.crntItem;
@@ -129,7 +134,7 @@ export default function lex(tokens) {
             }
             else {
                 // If we found text operator, read it
-                var [type, subType] = textOperatorLookup[found];
+                var [type, subType] = textValueLookup[found];
                 result.push(new Lexeme(type, subType, found))
                 ctx.next(found.length);
             }

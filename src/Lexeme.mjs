@@ -57,6 +57,7 @@ export const LexemeSubType = {
     NUMBER: 0,
     VARIABLE: 0, 
     PREVIOUS_ANSWER: 0,
+    CONSTANT: 0,
 
     // paren
     L_PAREN: 0,
