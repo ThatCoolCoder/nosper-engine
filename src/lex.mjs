@@ -34,6 +34,13 @@ const textOperatorLookup = {
     'ln' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.NATURAL_LOGARITHM],
 };
 
+const parenLookup = {
+    '(': [LexemeSubType.L_PAREN, LexemeSubType.L_PAREN],
+    ')': [LexemeSubType.R_PAREN, LexemeSubType.R_PAREN],
+    '{': [LexemeSubType.L_PAREN, LexemeSubType.L_CURLY_PAREN],
+    '}': [LexemeSubType.R_PAREN, LexemeSubType.R_CURLY_PAREN],
+}
+
 export default function lex(tokens) {
     var lexemes = [];
 
@@ -59,6 +66,15 @@ export default function lex(tokens) {
                 result = result.concat(lexSymbolicOperators(ctx.crntItem.value));
                 ctx.next();
             }
+            else if (ctx.crntItem.type == TokenType.TEXT) {
+                result = result.concat(lexText(ctx.crntItem.value));
+                ctx.next();
+            }
+            else if (ctx.crntItem.type == TokenType.PAREN) {
+                var [type, subType] = parenLookup[ctx.crntItem.value];
+                result.push(new Lexeme(type, subType, ctx.crntItem.value));
+                ctx.next();
+            }
             else {
                 throw new Error(`Unknown token type: "${ctx.crntItem.type}"`)
             }
@@ -73,9 +89,40 @@ export default function lex(tokens) {
         while (!ctx.finished) {
             var found = greedyFindFirst(ctx.remaining, spnr.obj.keys(symbolicOperatorLookup));
             if (found == null) throw new Error(`Unexpected symbols: "${ctx.remaining}"`);
-            var data = symbolicOperatorLookup[found];
-            result.push(new Lexeme(data[0], data[1], found))
+            var [type, subType] = symbolicOperatorLookup[found];
+            result.push(new Lexeme(type, subType, found))
             ctx.next(found.length);
+        }
+
+        return result;
+    }
+
+    function lexText(text) {
+        var ctx = new ParseContext(text);
+        var result = [];
+
+        while (!ctx.finished) {
+            var found = greedyFindFirst(ctx.remaining, spnr.obj.keys(textOperatorLookup));
+            if (found == null) {
+                // Person has not typed an operator - read variable
+                var varName = ctx.crntItem;
+                ctx.next();
+                if (ctx.crntItem == '_') {
+                    // If is multi-letter, take all the text
+                    varName += ctx.remaining;
+                    result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.VARIABLE, varName));
+                    break;
+                }
+                else {
+                    // Else take just this letter
+                    result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.VARIABLE, varName));
+                }
+            }
+            else {
+                var [type, subType] = textOperatorLookup[found];
+                result.push(new Lexeme(type, subType, found))
+                ctx.next(found.length);
+            }
         }
 
         return result;

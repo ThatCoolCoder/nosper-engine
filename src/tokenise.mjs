@@ -78,17 +78,15 @@ export default function tokenise(expression) {
                     ctx.next();
                 }
                 else {
-                    ctx.next();
                     break;
                 }
 
-            } else {
+            } else { // (if is reading exponent)
                 if (spnr.str.digits.includes(ctx.crntItem)) {
                     exponentVal += ctx.crntItem;
                     ctx.next();
                 }
                 else {
-                    ctx.next();
                     break;
                 }
             }
