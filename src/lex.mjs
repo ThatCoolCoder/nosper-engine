@@ -18,6 +18,8 @@ const symbolicOperatorLookup = {
 };
 
 const textOperatorLookup = {
+    'ans' : [LexemeType.VALUE, LexemeSubType.PREVIOUS_ANSWER],
+
     'sin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.SINE],
     'asin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ARC_SINE],
     'csc' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.COSECANT],
@@ -30,8 +32,15 @@ const textOperatorLookup = {
     'atan' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ARC_TANGENT],
     'cot' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.COTANGENT],
 
+    'q' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.SQUARE_ROOT],
+    'sqrt' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.SQUARE_ROOT],
+    'cbrt' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.CUBE_ROOT],
+    'abs' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ABSOLUTE_VALUE],
     'log' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.LOGARITHM],
     'ln' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.NATURAL_LOGARITHM],
+    'round' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ROUND],
+    'floor' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.FLOOR],
+    'ceil' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.CEILING],
 };
 
 const parenLookup = {
@@ -107,7 +116,7 @@ export default function lex(tokens) {
                 // Person has not typed an operator - read variable
                 var varName = ctx.crntItem;
                 ctx.next();
-                if (ctx.crntItem == '_') {
+                if (ctx.crntItem == '_' || varName == '_') {
                     // If is multi-letter, take all the text
                     varName += ctx.remaining;
                     result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.VARIABLE, varName));
