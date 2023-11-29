@@ -4,14 +4,14 @@
 import { spnr } from './lib/spnr.mjs';
 
 export const LexemeType = {
-    BINARY_OPERATOR,
-    PREFIX_OPERATOR,
-    POSTFIX_OPERATOR,
-    TERNARY_OPERATOR,
-    VALUE,
-    PAREN,
+    BINARY_OPERATOR: 0,
+    PREFIX_OPERATOR: 0,
+    POSTFIX_OPERATOR: 0,
+    TERNARY_OPERATOR: 0,
+    VALUE: 0,
+    PAREN: 0,
 };
-spnr.obj.toEnum(LexemeType);
+spnr.obj.toEnum(LexemeType, true);
 
 export const LexemeSubType = {
     NONE: 0,
@@ -54,7 +54,7 @@ export const LexemeSubType = {
     TERNARY_IF_ELSE: 0,
 
     // value
-    LITERAL: 0,
+    NUMBER: 0,
     VARIABLE: 0, 
     PREVIOUS_ANSWER: 0,
 
@@ -64,7 +64,7 @@ export const LexemeSubType = {
     R_PAREN: 0,
     R_CURLY_PAREN: 0,
 };
-spnr.obj.toEnum(LexemeSubType);
+spnr.obj.toEnum(LexemeSubType, true);
 
 export class Lexeme {
     constructor(type, subType, value) {

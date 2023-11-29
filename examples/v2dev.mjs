@@ -2,6 +2,7 @@
 
 import * as readline from 'readline';
 import tokenise from '../src/tokenise.mjs';
+import lex from '../src/lex.mjs';
 import * as Errors from '../src/Errors.mjs';
 
 // var evaluator = new Evaluator(true);
@@ -14,7 +15,10 @@ const rl = readline.createInterface({
 function mainLoop() {
     rl.question('Enter equation: ', function (expression) {
         try {
-            console.log(tokenise(expression));
+            var tokens = tokenise(expression);
+            console.log(tokens);
+            var lexemes = lex(tokens);
+            console.log(lexemes);
         }
         catch (e) {
             console.log(e);
