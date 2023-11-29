@@ -1,5 +1,6 @@
 export default class ParseContext {
-    // Use for going over arrays or strings or other indexable types
+    // Little helper for going over arrays or strings or other indexable types,
+    // so that we don't have to write cursor movement functions 5 times.
 
     constructor(source) {
         this.source = source;

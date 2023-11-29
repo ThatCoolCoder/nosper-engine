@@ -9,9 +9,9 @@ export class Evaluator {
         this.context = new EvaluationContext();
     }
 
-    evaluate(expression) {
+    evaluate(expression, context=this.context) {
         var tree = compile(expression);
-        this.evaluateCompiledExpression(tree);
+        this.evaluateCompiledExpression(tree, context);
     }
 
     compile(expression) {
@@ -21,7 +21,7 @@ export class Evaluator {
         return tree;
     }
 
-    evaluateCompiledExpression(compiledExpression) {
-        tree.evaluate(compiledExpression);
+    evaluateCompiledExpression(compiledExpression, context=this.context) {
+        tree.evaluate(compiledExpression, context);
     }
 }

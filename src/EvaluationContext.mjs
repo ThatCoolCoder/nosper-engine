@@ -1,10 +1,47 @@
 import { spnr } from './lib/spnr.mjs'
 
 export class EvaluationContext {
-    constructor() {
+    constructor(variables=new ValueGroup(), functions=new ValueGroup()) {
         this.useRadians = true;
-        this.scopeStack = [new Scope()];
+        this.scopeStack = [new Scope(variables, functions)];
         this.previousAnswer = 0;
+    }
+
+    get topScope() {
+        return this.scopeStack[this.scopeStack.length - 1];
+    }
+
+    getVariableFromStack(variableName) {
+        return this._getValueFromStack(variableName, s => s.variables);
+    }
+
+    getFunctionFromStack(functionName) {
+        return this._getValueFromStack(functionName, s => s.functions);
+    }
+
+    _getValueFromStack(itemName, scopeToItem) {
+        // Traverse stack from innermost level to get variable/function with a certain name
+        // scopeToItem should be a function getting a valuegroup from a scope
+
+        for (var i = this.scopeStack.length - 1; i >= 0; i --) {
+            var scope = this.scopeStack[i];
+            var valueGroup = scopeToItem(scope);
+            if (valueGroup.isDefined(itemName)) return valueGroup.get(itemName);
+        }
+        return null;
+    }
+
+    isVariableDefined(variableName) {
+        return this._valueDefinedOnStack(variableName, s => s.variables);
+    }
+
+    isFunctionDefined(functionName) {
+        return this._valueDefinedOnStack(functionName, s => s.functions);
+    }
+
+    _valueDefinedOnStack(itemName, scopeToItem) {
+        // Like _getValueFromStack but checks if it is defined on any of the levels
+        return this.scopeStack.some(s => scopeToItem(s).isDefined(itemName));
     }
 }
 

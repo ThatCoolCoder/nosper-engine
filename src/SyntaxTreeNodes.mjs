@@ -1,6 +1,6 @@
 import { spnr } from './lib/spnr.mjs'
 import { LexemeSubType } from "./Lexeme.mjs";
-import { ValueGroup } from './EvaluationContext.mjs';
+import { ValueGroup, Scope } from './EvaluationContext.mjs';
 import * as Errors from './Errors.mjs';
 
 const BinaryOperator = {
@@ -28,11 +28,11 @@ const BinaryOperator = {
         if (aValue == 0 && bValue == 0) throw new Errors.MathDomainError('0 to the power of 0 is undefined');
         return aValue ** bValue;
     },
-    // [LexemeSubType.ASSIGN]: (a, b, ctx) => {
-    //     var bValue = b.evaluate(ctx);
-    //     ctx.variables.set(a.value, bValue);
-    //     return bValue;
-    // },
+    [LexemeSubType.ASSIGN]: (a, b, ctx) => {
+        var bValue = b.evaluate(ctx);
+        ctx.topScope.variables.set(bValue);
+        return bValue;
+    },
     // [LexemeSubType.FUNCTION_ASSIGN]: (a, b, ctx) => {
     //     ctx.functions.set(a.value, b);
     //     return 0;
@@ -116,10 +116,11 @@ export class ValueNode extends SyntaxTreeNode {
         }
         else if (this.subType == LexemeSubType.VARIABLE)
         {
-            var topOfArgumentStack = context.argumentStack[context.argumentStack.length - 1];
-            if (topOfArgumentStack != undefined && topOfArgumentStack.isDefined(this.value)) return topOfArgumentStack.get(this.value);
-            else if (context.variables.isDefined(this.value)) return context.variables.get(this.value);
-            else throw new Errors.UndefinedVariableError(this.value, context.functions.isDefined(this.value));
+            var value = context.getVariableFromStack(this.value);
+
+            if (value == null) throw new Errors.UndefinedVariableError(this.value, context.isFunctionDefined(value));
+
+            return value;
         }
         else if (this.subType == LexemeSubType.PREVIOUS_ANSWER)
         {
