@@ -30,7 +30,7 @@ const BinaryOperator = {
     },
     [LexemeSubType.ASSIGN]: (a, b, ctx) => {
         var bValue = b.evaluate(ctx);
-        ctx.topScope.variables.set(bValue);
+        ctx.topScope.variables.set(a.value, bValue);
         return bValue;
     },
     // [LexemeSubType.FUNCTION_ASSIGN]: (a, b, ctx) => {
@@ -110,7 +110,7 @@ export class ValueNode extends SyntaxTreeNode {
     }
 
     evaluate(context) {
-        if (this.subType == LexemeSubType.LITERAL)
+        if (this.subType == LexemeSubType.NUMBER)
         {
             return this.value;
         }

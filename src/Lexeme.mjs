@@ -24,6 +24,7 @@ export const LexemeSubType = {
     DIVIDE_LOW_PRECEDENCE: 0,
     MODULO: 0,
     EXPONENTIATE: 0,
+    ASSIGN: 0,
 
     // prefix operator: trig
     SINE: 0,

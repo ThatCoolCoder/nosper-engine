@@ -56,14 +56,6 @@ export class Scope {
     }
 }
 
-const baseConstants = new ValueGroup({
-    pi: spnr.PI,
-    tau: spnr.PI * 2,
-    e: spnr.E,
-    phi: (1 + spnr.sqrt(5)) / 2, // (aka the golden ratio)
-    silv: spnr.SQRT2 + 1
-});
-
 export class ValueGroup {
     // Abstraction of a dictionary for storing (potentially scoped) information such as functions and variables
 
@@ -106,3 +98,11 @@ export class ValueGroup {
         }
     }
 }
+
+const baseConstants = new ValueGroup({
+    pi: spnr.PI,
+    tau: spnr.PI * 2,
+    e: spnr.E,
+    phi: (1 + spnr.sqrt(5)) / 2, // (aka the golden ratio)
+    silv: spnr.SQRT2 + 1
+});

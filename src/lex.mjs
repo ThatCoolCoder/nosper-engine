@@ -10,20 +10,22 @@ const symbolicOperatorLookup = {
     '/' : [LexemeType.BINARY_OPERATOR, LexemeSubType.DIVIDE],
     '//' : [LexemeType.BINARY_OPERATOR, LexemeSubType.DIVIDE_LOW_PRECEDENCE],
     '%' : [LexemeType.BINARY_OPERATOR, LexemeSubType.MODULO],
-
+    
     '**' : [LexemeType.BINARY_OPERATOR, LexemeSubType.EXPONENTIATE],
     '^' : [LexemeType.BINARY_OPERATOR, LexemeSubType.EXPONENTIATE],
-
+    
     '!' : [LexemeType.POSTFIX_OPERATOR, LexemeSubType.FACTORIAL],
+    
+    '=' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ASSIGN],
 };
 
 const textValueLookup = {
     'ans' : [LexemeType.VALUE, LexemeSubType.PREVIOUS_ANSWER],
-    'pi' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
-    'tau' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
-    'e' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
-    'phi' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
-    'silv' : [LexemeType.VALUE, LexemeSubType.CONSTANT],
+    'pi' : [LexemeType.VALUE, LexemeSubType.VARIABLE],
+    'tau' : [LexemeType.VALUE, LexemeSubType.VARIABLE],
+    'e' : [LexemeType.VALUE, LexemeSubType.VARIABLE],
+    'phi' : [LexemeType.VALUE, LexemeSubType.VARIABLE],
+    'silv' : [LexemeType.VALUE, LexemeSubType.VARIABLE],
 
     'sin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.SINE],
     'asin' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ARC_SINE],

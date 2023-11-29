@@ -59,10 +59,7 @@ raw string into:
 - number
 - text
 
-For a simple language form it may be sufficient to parse directly into the meanings of these, and straight away separate text into var/. But it may be beneficial to leave room to grow, for instance if we want to make there be more marked differences in parsing between function headers/bodies, which would warrant first cleaning up the string and then going through and assignming
-
-into:
-- 
+For a simple language form it may be sufficient to parse directly into the meanings of these, and straight away separate text into var/func/whatever. But it may be beneficial to leave room to grow, for instance if we want to make there be more marked differences in parsing between function headers/bodies, which would warrant first cleaning up the string and then going through and assigning meaning
 
 final:
 - ast with nodes very similar to current ones:
