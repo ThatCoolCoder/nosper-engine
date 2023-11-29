@@ -6,6 +6,7 @@ const numberChars = [...spnr.str.digits, '.'];
 const symbolicOperatorChars = '+-*/^%!=<>,'.split('');
 const parenChars = '(){}'.split('');
 const whitespaceChars = ' '.split('');
+const functionChars = [...spnr.str.alphabet, ...spnr.str.digits, '_'];
 
 const textStartChars = [...spnr.str.alphabet, '_'];
 const textRestChars = [...spnr.str.alphabet, ...spnr.str.digits, '_'];
@@ -33,6 +34,9 @@ export default function tokenise(expression) {
         }
         else if (textStartChars.includes(ctx.crntItem)) {
             tokens.push(new Token(TokenType.TEXT, readText()));
+        }
+        else if (ctx.crntItem == '@') {
+            tokens.push(new Token(TokenType.FUNCTION_CALL, readFunctionCall()));
         }
         else {
             throw new Error(`Unexpected character while parsing: "${ctx.crntItem}"`);
@@ -121,6 +125,22 @@ export default function tokenise(expression) {
             }
             ctx.next();
         }
+
+        return value;
+    }
+
+    function readFunctionCall() {
+        var value = '';
+
+        ctx.next(); // skip over the prefix
+
+        while (!ctx.finished) {
+            value += ctx.crntItem;
+            ctx.next();
+            if (!functionChars.includes(ctx.crntItem)) break;
+        }
+
+        if (value.length == 0) throw new Error('Function name cannot be empty');
 
         return value;
     }

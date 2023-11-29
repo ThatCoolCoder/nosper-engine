@@ -40,7 +40,7 @@ This project uses a rolling release system, where stable versions can be obtaine
 
 ## Overview of the code
 
-The key components of the engine are the evaluator, parser, lexer and tokeniser. They'll be described at a high level here, for more information view comments in the referenced files.
+The key components of the engine are the evaluator, parser, lexer and tokeniser. They'll be described at a high level here, for more information view comments in the referenced files. It's a bit rough and ready at the moment as I wrote most of it in one day.
 
 The first step of evaluation is tokenising the expression into fairly dumb tokens. The tokenisation is done by a function in `tokenise.mjs`. It was decided to use nested functions for tokenising rather than a class as it allows easy state preservation while also keeping "thread safety" (asynchronous safety) if called multiple times. See `Token.mjs` for info on what data the tokens store.
 

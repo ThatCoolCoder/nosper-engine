@@ -13,9 +13,9 @@ const rl = readline.createInterface({
 
 // Note - a recursive mainloop for this type of thing is probably not optimal. This is just a quick demo project
 function mainLoop() {
-    rl.question('Enter equation: ', function (equation) {
+    rl.question('Enter equation: ', expression => {
         try {
-            console.log(evaluator.evaluate(equation));
+            console.log(evaluator.evaluate(expression));
         }
         catch (e) {
             if (e instanceof Errors.EvaluationError) {

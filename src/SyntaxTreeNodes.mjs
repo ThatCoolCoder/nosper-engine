@@ -178,18 +178,20 @@ export class FunctionCallNode extends SyntaxTreeNode {
     }
 
     evaluate(context) {
-        if (context.functions.isDefined(this.name)) {
+        if (context.isFunctionDefined(this.name)) {
             var scope = new Scope();
-            this.args.forEach((arg, idx) => scope.variables.set(idx, arg.evaluate(context)));
+            var functionInfo = context.getFunctionFromStack(this.name);
+
+            this.args.forEach((arg, idx) => scope.variables.set(functionInfo.argumentNames[idx], arg.evaluate(context)));
             context.scopeStack.push(scope);
 
-            var result = context.functions.get(this.name).evaluate(context);
+            var result = functionInfo.definition.evaluate(context);
             
             context.scopeStack.pop();
             return result;
         }
         else {
-            throw new Errors.UndefinedFunctionError(this.name, context.variables.isDefined(this.name));
+            throw new Errors.UndefinedFunctionError(this.name, context.isVariableDefined(this.name));
         }
     }
 }

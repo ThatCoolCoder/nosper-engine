@@ -27,7 +27,7 @@ export class Evaluator {
         }
         catch (e) {
             if (debugMode) console.log('Error during compilation: ', e);
-            return new MathSyntaxError();
+            throw new MathSyntaxError();
         }
     }
 

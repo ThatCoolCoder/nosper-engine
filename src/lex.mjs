@@ -98,6 +98,10 @@ export default function lex(tokens) {
                 result.push(new Lexeme(type, subType, ctx.crntItem.value));
                 ctx.next();
             }
+            else if (ctx.crntItem.type == TokenType.FUNCTION_CALL) {
+                result.push(new Lexeme(LexemeType.FUNCTION_CALL, LexemeSubType.NONE, ctx.crntItem.value));
+                ctx.next();
+            }
             else {
                 throw new Error(`Unknown token type: "${ctx.crntItem.type}"`)
             }
@@ -267,7 +271,7 @@ function insertImplicitMultiplicationSigns(lexemes) {
 
         var nextLexemeOk = nextLexeme.type == LexemeType.VALUE ||
             nextLexeme.subType == LexemeSubType.L_PAREN || 
-            // nextLexeme.subType == LexemeSubType.UNPARSED_FUNCTION_CALL ||
+            nextLexeme.type == LexemeType.FUNCTION_CALL ||
             nextLexeme.type == LexemeType.PREFIX_OPERATOR;
 
         result.push(crntLexeme);
