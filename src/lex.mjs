@@ -51,7 +51,7 @@ export default function lex(tokens) {
         ctx.next();
     }
 
-    return lexemes;
+    return postProcess(lexemes);
 
     
 
@@ -119,6 +119,7 @@ export default function lex(tokens) {
                 }
             }
             else {
+                // If we found text operator, read it
                 var [type, subType] = textOperatorLookup[found];
                 result.push(new Lexeme(type, subType, found))
                 ctx.next(found.length);
@@ -139,4 +140,64 @@ export default function lex(tokens) {
 
         return null;
     }
+}
+
+function postProcess(lexemes) {
+    var result = lexemes;
+    result = convertToNegations(lexemes);
+    result = insertImplicitMultiplicationSigns(lexemes);
+    return result;
+}
+
+function convertToNegations(lexemes) {
+    // Convert a subtraction operation into a negation operation in some cases
+    var previous = null;
+    return lexemes.map((lexeme, idx) => {
+        if (lexeme.subType == LexemeSubType.SUBTRACT) {
+            var previousTokenValid = true;
+
+            if (idx >= 1) {
+                previousTokenValid = (
+                    previous.type == LexemeType.PREFIX_OPERATOR ||
+                    previous.type == LexemeType.BINARY_OPERATOR ||
+                    previous.subType == LexemeSubType.L_PAREN)//; ||
+                    // previous.subType == LexemeSubType.ARGUMENT_SEPARATOR);
+            }
+
+            if (previousTokenValid)
+            {
+                lexeme.type = LexemeType.PREFIX_OPERATOR;
+                lexeme.subType = LexemeSubType.NEGATE;
+            }
+        }
+        previous = lexeme;
+    });
+}
+
+function insertImplicitMultiplicationSigns(lexemes) {
+    var result = [];
+
+    for (var i = 0; i < lexemes.length - 1; i ++)
+    {
+        var crntLexeme = lexemes[i];
+        var nextLexeme = lexemes[i + 1];
+
+        var crntLexemeOk = crntLexeme.type == LexemeType.VALUE ||
+            crntLexeme.subType == LexemeSubType.R_PAREN ||
+            crntLexeme.type == LexemeSubType.POSTFIX_OPERATOR;
+
+        var nextLexemeOk = nextLexeme.type == LexemeType.VALUE ||
+            nextLexeme.subType == LexemeSubType.L_PAREN || 
+            // nextLexeme.subType == LexemeSubType.UNPARSED_FUNCTION_CALL ||
+            nextLexeme.type == LexemeType.PREFIX_OPERATOR;
+
+        result.push(crntLexeme);
+        if (crntLexemeOk && nextLexemeOk)
+        {
+            result.push(new Lexeme(LexemeType.BINARY_OPERATOR, LexemeSubType.MULTIPLY, '*'));
+        }
+    }
+    result.push(lexemes[lexemes.length - 1]); // add final lexeme because we missed it in the loop
+    
+    return result;
 }
