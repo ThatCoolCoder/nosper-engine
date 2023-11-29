@@ -15,7 +15,7 @@ const rl = readline.createInterface({
 function mainLoop() {
     rl.question('Enter equation: ', function (equation) {
         try {
-            console.log(evaluator.evaluate(equation));
+            console.log(evaluator.evaluate(equation, true));
         }
         catch (e) {
             console.log(e);

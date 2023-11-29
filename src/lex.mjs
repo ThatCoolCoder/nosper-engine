@@ -17,6 +17,8 @@ const symbolicOperatorLookup = {
     '!' : [LexemeType.POSTFIX_OPERATOR, LexemeSubType.FACTORIAL],
     
     '=' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ASSIGN],
+
+    ',' : [LexemeType.SEPARATOR, LexemeSubType.COMMA]
 };
 
 const textValueLookup = {
@@ -48,6 +50,8 @@ const textValueLookup = {
     'round' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.ROUND],
     'floor' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.FLOOR],
     'ceil' : [LexemeType.PREFIX_OPERATOR, LexemeSubType.CEILING],
+
+    'def' : [LexemeType.KEYWORD, LexemeSubType.FUNCTION_DEF],
 };
 
 const parenLookup = {
@@ -74,7 +78,10 @@ export default function lex(tokens) {
     function lexExpression() {
         var result = [];
         while (!ctx.finished) {
-            if (ctx.crntItem.type == TokenType.NUMBER) {
+            if (result.length >= 1 && result[result.length - 1].subType == LexemeSubType.FUNCTION_DEF) {
+                result = result.concat(lexFunctionHeader());
+            }
+            else if (ctx.crntItem.type == TokenType.NUMBER) {
                 result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.NUMBER, ctx.crntItem.value));
                 ctx.next();
             }
@@ -94,6 +101,44 @@ export default function lex(tokens) {
             else {
                 throw new Error(`Unknown token type: "${ctx.crntItem.type}"`)
             }
+        }
+        return result;
+    }
+
+    function lexFunctionHeader() {
+        var result = [];
+        var name = ctx.crntItem.value[0];
+        // todo: error handling here
+        result.push(new Lexeme(LexemeType.ASSIGNABLE, LexemeSubType.FUNCTION_ASSIGNMENT_NAME, name));
+        ctx.next();
+        
+        result.push(new Lexeme(LexemeType.PAREN, LexemeSubType.L_PAREN, '('));
+        ctx.next();
+
+        while (!ctx.finished) {
+            // Read variable name then comma
+            if (ctx.crntItem.type == TokenType.TEXT) {
+                var textLexemes = lexText(ctx.crntItem.value);
+                if (textLexemes.length != 1) throw new Error(`Invalid variable name: "${ctx.crntItem.value}"`);
+                var first = textLexemes[0];
+                if (first.subType != LexemeSubType.VARIABLE) throw new Error(`Invalid variable name: "${ctx.crntItem.value}"`);
+                result.push(new Lexeme(LexemeType.ASSIGNABLE, LexemeSubType.VARIABLE_ASSIGNMENT_NAME, first.value));
+                ctx.next();
+            }
+            // Catch EOF
+            if (ctx.finished) throw new Error('Unexpected end of input');
+            // Get comma if it exists (we migt alternately be at the end in which case the next if kicks in)
+            if (ctx.crntItem.type == TokenType.SYMBOLIC_OPERATOR) {
+                result.push(new Lexeme(LexemeType.SEPARATOR, LexemeSubType.COMMA, ','));
+                ctx.next();
+            }
+            // consider finishing if right bracket
+            else if (ctx.crntItem.type == TokenType.PAREN && ctx.crntItem.value == ')') {
+                result.push(new Lexeme(LexemeType.PAREN, LexemeSubType.R_PAREN, ')'));
+                ctx.next();
+                break;
+            }
+            else throw new Error(`Invalid token type: "${ctx.crntItem.type}"`)
         }
         return result;
     }
@@ -160,9 +205,27 @@ export default function lex(tokens) {
 
 function postProcess(lexemes) {
     var result = lexemes;
+    result = convertToVariableAssignmentNames(lexemes);
     result = convertToNegations(lexemes);
     result = insertImplicitMultiplicationSigns(lexemes);
     return result;
+}
+
+function convertToVariableAssignmentNames(lexemes) {
+    // Convert a subtraction operation into a negation operation in some cases
+    var previous = null;
+    return lexemes.map((lexeme, idx) => {
+        if (lexeme.subType == LexemeSubType.ASSIGN) {
+            var previousTokenValid = true;
+
+            if (idx >= 1 && previous.subType == LexemeSubType.VARIABLE)
+            {
+                previous.type = LexemeType.ASSIGNABLE;
+                previous.subType = LexemeSubType.VARIABLE_ASSIGNMENT_NAME;
+            }
+        }
+        previous = lexeme;
+    });
 }
 
 function convertToNegations(lexemes) {

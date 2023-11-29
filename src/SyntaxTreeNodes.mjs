@@ -1,6 +1,6 @@
 import { spnr } from './lib/spnr.mjs'
 import { LexemeSubType } from "./Lexeme.mjs";
-import { ValueGroup, Scope } from './EvaluationContext.mjs';
+import { ValueGroup, Scope, FunctionInfo } from './EvaluationContext.mjs';
 import * as Errors from './Errors.mjs';
 
 const BinaryOperator = {
@@ -29,22 +29,19 @@ const BinaryOperator = {
         return aValue ** bValue;
     },
     [LexemeSubType.ASSIGN]: (a, b, ctx) => {
-        var bValue = b.evaluate(ctx);
-        ctx.topScope.variables.set(a.value, bValue);
-        return bValue;
+        if (a instanceof AssignableNode) {
+            var bValue = b.evaluate(ctx);
+            ctx.topScope.variables.set(a.value, bValue);
+            return bValue;
+        }
+        else if (a instanceof FunctionHeaderNode) {
+            ctx.topScope.functions.set(a.name, new FunctionInfo(a.name, a.argNames, b));
+            return 0;
+        }
+        else {
+            throw new Error('What are you trying to assign. todo: write message');
+        }
     },
-    // [LexemeSubType.FUNCTION_ASSIGN]: (a, b, ctx) => {
-    //     ctx.functions.set(a.value, b);
-    //     return 0;
-    // },
-    // [LexemeSubType.IF]: (a, b, ctx) => {
-    //     if (a.evaluate(ctx) > 0) return b.evaluate(ctx);
-    //     else return 0; 
-    // },
-    // [LexemeSubType.NOT_IF]: (a, b, ctx) => {
-    //     if (a.evaluate(ctx) == 0) return b.evaluate(ctx);
-    //     else return 0; 
-    // }
 }
 
 const UnaryOperator = {
@@ -129,6 +126,13 @@ export class ValueNode extends SyntaxTreeNode {
     }
 }
 
+export class AssignableNode extends SyntaxTreeNode {
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+}
+
 export class BinaryOperatorNode extends SyntaxTreeNode {
     constructor(left, right, operatorSubType) {
         super();
@@ -154,6 +158,18 @@ export class UnaryOperatorNode extends SyntaxTreeNode {
     }
 }
 
+export class FunctionHeaderNode extends SyntaxTreeNode {
+    constructor(name, argNames) {
+        super();
+        this.name = name;
+        this.argNames = argNames;
+    }
+
+    evaluate(_context) {
+        throw new Error('function headers should not be evaluated');
+    }
+}
+
 export class FunctionCallNode extends SyntaxTreeNode {
     constructor(name, args) {
         super();
@@ -162,12 +178,14 @@ export class FunctionCallNode extends SyntaxTreeNode {
     }
 
     evaluate(context) {
-        var valueGroup = new ValueGroup();
-        this.args.forEach((arg, idx) => valueGroup.set(idx, arg.evaluate(context)));
-        context.argumentStack.push(valueGroup);
         if (context.functions.isDefined(this.name)) {
+            var scope = new Scope();
+            this.args.forEach((arg, idx) => scope.variables.set(idx, arg.evaluate(context)));
+            context.scopeStack.push(scope);
+
             var result = context.functions.get(this.name).evaluate(context);
-            context.argumentStack.pop();
+            
+            context.scopeStack.pop();
             return result;
         }
         else {

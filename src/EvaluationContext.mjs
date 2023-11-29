@@ -106,3 +106,11 @@ const baseConstants = new ValueGroup({
     phi: (1 + spnr.sqrt(5)) / 2, // (aka the golden ratio)
     silv: spnr.SQRT2 + 1
 });
+
+export class FunctionInfo {
+    constructor(name, argumentNames, definition) {
+        this.name = name;
+        this.argumentNames = argumentNames;
+        this.definition = definition;
+    }
+}

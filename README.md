@@ -37,3 +37,17 @@ If for some reason, you want to compile an expression separately from evaluating
 This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
 
 (Maintainers: please update this doc when creating a new release branch)
+
+## Overview of the code
+
+The key components of the engine are the evaluator, parser, lexer and tokeniser. They'll be described at a high level here, for more information view comments in the referenced files.
+
+The first step of evaluation is tokenising the expression into fairly dumb tokens. The tokenisation is done by a function in `tokenise.mjs`. It was decided to use nested functions for tokenising rather than a class as it allows easy state preservation while also keeping "thread safety" (asynchronous safety) if called multiple times. See `Token.mjs` for info on what data the tokens store.
+
+Next, the lexer (`lex.mjs`) converts these tokens into "lexemes" (`Lexeme.mjs`). The lexer is structured similarly to the tokeniser. Lexemes are somewhat like tokens but they contain information about their semantic meaning. Technically this distinction between tokeniser/lexer isn't essential, however if we decide to make more complex syntax (where symbols have a completely different meaning in different contexts), this makes life a lot easier.
+
+The parser (`parse.mjs`, another set of nested functions) converts these lexemes into a syntax tree (`SyntaxTreeNodes.mjs`). It takes a slightly odd approach to parsing however. See
+
+The evaluator (`Evaluator.mjs`, an actual class) doesn't do much. It only manages the other components, handling loadables, and keeping track of the evaluation context. Its true purpose is to provide a simple interface to consumers.
+
+An `EvaluationContext` allows for easy storage of information between (and during) evaluations. It's passed around when executing the syntax tree, for instance. Among other things, it defines an array of scopes (which each contain functions and variables), which act to provide local/global variables to functions. Things at the end of the array (aka top of the stack) pertain to the most local function. Base constants are also defined through the default scope. Scopes are managed by function call nodes.

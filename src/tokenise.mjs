@@ -3,7 +3,7 @@ import ParseContext from './ParseContext.mjs';
 import { Token, TokenType } from "./Token.mjs";
 
 const numberChars = [...spnr.str.digits, '.'];
-const symbolicOperatorChars = '+-*/^%!=<>'.split('');
+const symbolicOperatorChars = '+-*/^%!=<>,'.split('');
 const parenChars = '(){}'.split('');
 const whitespaceChars = ' '.split('');
 

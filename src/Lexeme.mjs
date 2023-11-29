@@ -8,8 +8,12 @@ export const LexemeType = {
     PREFIX_OPERATOR: 0,
     POSTFIX_OPERATOR: 0,
     TERNARY_OPERATOR: 0,
+    SEPARATOR: 0,
+    FUNCTION_CALL: 0,
     VALUE: 0,
+    ASSIGNABLE: 0,
     PAREN: 0,
+    KEYWORD: 0,
 };
 spnr.obj.toEnum(LexemeType, true);
 
@@ -48,23 +52,35 @@ export const LexemeSubType = {
     FLOOR: 0,
     CEILING: 0,
 
-    // postfix operator:
+    // postfix operator
     FACTORIAL: 0,
 
-    // ternary operator:
+    // ternary operator
     TERNARY_IF_ELSE: 0,
+
+    // separator
+    COMMA: 0,
+
+    // none for function call
 
     // value
     NUMBER: 0,
     VARIABLE: 0, 
     PREVIOUS_ANSWER: 0,
     CONSTANT: 0,
+    
+    // assignable
+    VARIABLE_ASSIGNMENT_NAME: 0,
+    FUNCTION_ASSIGNMENT_NAME: 0,
 
     // paren
     L_PAREN: 0,
     L_CURLY_PAREN: 0,
     R_PAREN: 0,
     R_CURLY_PAREN: 0,
+
+    // keyword
+    FUNCTION_DEF: 0,
 };
 spnr.obj.toEnum(LexemeSubType, true);
 

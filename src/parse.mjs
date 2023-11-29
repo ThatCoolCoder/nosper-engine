@@ -1,6 +1,7 @@
 import { spnr } from './lib/spnr.mjs';
 import { Lexeme, LexemeType, LexemeSubType } from './Lexeme.mjs';
-import { BinaryOperatorNode, SyntaxTreeNode, UnaryOperatorNode, ValueNode } from './SyntaxTreeNodes.mjs';
+import { AssignableNode, BinaryOperatorNode, FunctionHeaderNode, SyntaxTreeNode, UnaryOperatorNode, ValueNode } from './SyntaxTreeNodes.mjs';
+import ParseContext from './ParseContext.mjs';
 
 // Order of operations
 // postfix unary operators like factorial
@@ -52,6 +53,22 @@ function parseInner(lexemes) {
 
     console.log('Start parseInner:', lexemes);
     while (lexemes.length > 1 || lexemes.some(l => l instanceof Lexeme)) {
+        // if it contains function header, do that (must do before paren section below as function def includes paren)
+        // perhaps we should have more semantics attached to parens because we can differentiate this in lexing
+        var functionDefIndex = lexemes.findIndex(l => l.subType == LexemeSubType.FUNCTION_DEF);
+        if (functionDefIndex >= 0) {
+            var endBracketIndex = -1;
+            for (var i = 0; i < lexemes.length; i ++) {
+                if (lexemes[i].subType == LexemeSubType.R_PAREN) {
+                    endBracketIndex = i;
+                    break;
+                }
+            }
+            var parsed = parseFunctionHeader(lexemes.slice(functionDefIndex, endBracketIndex + 1));
+            replaceSliceByEndIdx(functionDefIndex, endBracketIndex + 1, parsed);
+            continue;
+        }
+
         // if contains brackets, do that
         var startBracketIndex = lexemes.findIndex(l => l.subType == LexemeSubType.L_PAREN);
         if (startBracketIndex >= 0) {
@@ -70,24 +87,24 @@ function parseInner(lexemes) {
 
             var parsed = parseInner(lexemes.slice(startBracketIndex + 1, endBracketIndex));
             replaceSliceByEndIdx(startBracketIndex, endBracketIndex + 1, parsed);
+            continue;
         }
-            // get info of outermost set
-            // replace b1 to b2 with parseInner(after bracket to before bracket), continue
-            
-        // if contains function header syntax
-            // ~~there can only be one set of this~~ nested functions will exist
-            // parse that with separate parser & replace, continue
-        
+
         // if it contains function call syntax
             // get info of outermost one
             // parse that with separate parser and replace, continue
 
-        // if it contains a value token
-        // get info of any of them, perform trivial replacement
-        
+        // if it contains a value lexeme, do that
         var valueIndex = lexemes.findIndex(l => l.type == LexemeType.VALUE);
         if (valueIndex >= 0) {
             lexemes[valueIndex] = new ValueNode(lexemes[valueIndex].value, lexemes[valueIndex].subType);
+            continue;
+        }
+
+        // if it contains an assignable lexeme, do that
+        var assignableIndex = lexemes.findIndex(l => l.subType == LexemeSubType.VARIABLE_ASSIGNMENT_NAME);
+        if (assignableIndex >= 0) {
+            lexemes[assignableIndex] = new AssignableNode(lexemes[assignableIndex].value);
             continue;
         }
 
@@ -158,4 +175,38 @@ function parseInner(lexemes) {
         // replace lexemes[startIdx:endIdx] with the single value replaceVal. endIdx not included
         replaceSlice(startIdx, endIdx - startIdx, replaceVal)
     }
+}
+
+function parseFunctionHeader(lexemes) {
+    console.log('parse function header');
+    var ctx = new ParseContext(lexemes);
+
+    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_DEF) throw new Error('todo: write message, you say is func but is not bruh');
+    ctx.next();
+
+    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_ASSIGNMENT_NAME) throw new Error('todo: write message, no func name');
+    var functionName = ctx.crntItem.value;
+    ctx.next();
+    
+    if (ctx.crntItem.subType != LexemeSubType.L_PAREN) throw new Error('todo: write message, no open paren on func');
+    ctx.next();
+
+    var lastWasComma = true;
+    var variables = [];
+    while (ctx.crntItem.subType != LexemeSubType.R_PAREN) {
+        if (ctx.finished) throw new Error('todo: write message');
+        if (lastWasComma) {
+            if (ctx.crntItem.subType == LexemeSubType.COMMA) throw new Error('todo: write message, 2 commas in a row');
+            variables.push(ctx.crntItem.value);
+            ctx.next();
+        }
+        else {
+            if (ctx.crntItem.subType == LexemeSubType.VARIABLE_ASSIGNMENT_NAME) throw new Error('todo: write message, 2 variables in a row');
+            ctx.next();
+        }
+    }
+
+    console.log('hjkkjshg:', functionName, variables);
+
+    return new FunctionHeaderNode(functionName, variables);
 }

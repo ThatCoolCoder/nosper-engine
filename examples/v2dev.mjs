@@ -17,14 +17,7 @@ const rl = readline.createInterface({
 function mainLoop() {
     rl.question('Enter equation: ', function (expression) {
         try {
-            var tokens = tokenise(expression);
-            console.log('tokens:', tokens);
-            var lexemes = lex(tokens);
-            console.log('lexemes:', lexemes);
-            var tree = parse(lexemes);
-            console.log('tree:', tree);
-            var result = evaluator.evaluateCompiledExpression(tree);
-            console.log('result:', result);
+            console.log('result:', evaluator.evaluate(expression, true));
         }
         catch (e) {
             console.log(e);
