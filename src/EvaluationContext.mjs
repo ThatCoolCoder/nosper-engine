@@ -7,6 +7,10 @@ export class EvaluationContext {
         this.previousAnswer = 0;
     }
 
+    get rootScope() {
+        return this.scopeStack[0];
+    }
+
     get topScope() {
         return this.scopeStack[this.scopeStack.length - 1];
     }
@@ -42,6 +46,28 @@ export class EvaluationContext {
     _valueDefinedOnStack(itemName, scopeToItem) {
         // Like _getValueFromStack but checks if it is defined on any of the levels
         return this.scopeStack.some(s => scopeToItem(s).isDefined(itemName));
+    }
+
+    applyLoadable(loadable) {
+        for (var varName in loadable.variables) {
+            this.rootScope.variables.set(varName, loadable.variables[varName].value);
+        }
+
+
+        for (var funcName in loadable.functions) {
+            this.rootScope.variables.set(funcName, loadable.functions[funcName].compiledValue);
+        }
+    }
+
+    removeLoadable(loadable) {
+        for (var varName in loadable.variables) {
+            this.rootScope.variables.delete(varName);
+        }
+
+
+        for (var funcName in loadable.functions) {
+            this.rootScope.functions.delete(funcName);
+        }
     }
 }
 
