@@ -267,7 +267,7 @@ function insertImplicitMultiplicationSigns(lexemes) {
 
         var crntLexemeOk = crntLexeme.type == LexemeType.VALUE ||
             crntLexeme.subType == LexemeSubType.R_PAREN ||
-            crntLexeme.type == LexemeSubType.POSTFIX_OPERATOR;
+            crntLexeme.type == LexemeType.POSTFIX_OPERATOR;
 
         var nextLexemeOk = nextLexeme.type == LexemeType.VALUE ||
             nextLexeme.subType == LexemeSubType.L_PAREN || 
