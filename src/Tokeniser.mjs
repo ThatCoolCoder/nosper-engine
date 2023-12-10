@@ -229,6 +229,7 @@ export class Tokeniser {
             var nextToken = tokens[i + 1];
 
             var currentTokenOk = currentToken.type == TokenType.VALUE ||
+                currentToken.type == TokenType.POSTFIX_UNARY_OPERATOR ||
                 currentToken.subType == TokenSubType.R_PAREN;
             var nextTokenOk = nextToken.type == TokenType.VALUE ||
                 nextToken.subType == TokenSubType.L_PAREN || 
