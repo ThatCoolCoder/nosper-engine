@@ -2,6 +2,7 @@ import { spnr } from './lib/spnr.mjs';
 import { Lexeme, LexemeType, LexemeSubType } from './Lexeme.mjs';
 import { AssignableNode, BinaryOperatorNode, FunctionCallNode, FunctionHeaderNode, SyntaxTreeNode, UnaryOperatorNode, ValueNode } from './SyntaxTreeNodes.mjs';
 import ParseContext from './ParseContext.mjs';
+import * as Errors from './Errors.mjs';
 
 // This parser is a little weird and uses a completely different method from v1
 // However it was pretty easy to code, is quite extensible, and is decently understandable, so it's here to stay. Here's how it works:
@@ -152,7 +153,7 @@ function parseInner(lexemes) {
             replaceSlice(idx - 1, 3, new BinaryOperatorNode(lexemes[idx - 1], lexemes[idx + 1], lexeme.subType));
         }
         else {
-            throw new Error('todo: write message, confused at what to do during parsing');
+            throw new Errors.MathSyntaxError(`Unexpected token "${lexeme.value}"`);
         }
     }
 
@@ -162,7 +163,7 @@ function parseInner(lexemes) {
 
     function findHighestPrecedenceOperator() {
         // search from end to start so that first occurences are deemed higher precedence
-        var highestLexeme = null; // todo: what if there are no operators?
+        var highestLexeme = null;
         var index = -1;
         for (var i = lexemes.length - 1; i >= 0; i --) {
             var crntLexeme = lexemes[i];
@@ -173,6 +174,7 @@ function parseInner(lexemes) {
                 index = i;
             }
         }
+        if (highestLexeme === null) throw new Errors.MathSyntaxError(`Expected an operator but there were none`);
         return [highestLexeme, index];
     }
 
@@ -191,7 +193,7 @@ function parseInner(lexemes) {
         else if (a.type == LexemeType.POSTFIX_OPERATOR) {
             return true; // earliest postfix operators are executed first
         }
-        // else you goofed up todo: add proper error handling
+        throw new Errors(`Cannot compare precedence of tokens of type ${a.type}`)
     }
 
     function replaceSlice(startIdx, length, replaceVal) {
@@ -208,27 +210,27 @@ function parseInner(lexemes) {
 function parseFunctionHeader(lexemes) {
     var ctx = new ParseContext(lexemes);
 
-    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_DEF) throw new Error('todo: write message, you say is func but is not bruh');
+    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_DEF) throw new Errors.MathSyntaxError(`Expected function definition`);
     ctx.next();
 
-    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_ASSIGNMENT_NAME) throw new Error('todo: write message, no func name');
+    if (ctx.crntItem.subType != LexemeSubType.FUNCTION_ASSIGNMENT_NAME) throw new Errors.MathSyntaxError(`Expected function name in function definition`);
     var functionName = ctx.crntItem.value;
     ctx.next();
     
-    if (ctx.crntItem.subType != LexemeSubType.L_PAREN) throw new Error('todo: write message, no open paren on func');
+    if (ctx.crntItem.subType != LexemeSubType.L_PAREN) throw new Errors.MathSyntaxError(`Expected "(" after function name "${functionName}"`);
     ctx.next();
 
     var lastWasComma = true;
     var variables = [];
     while (ctx.crntItem.subType != LexemeSubType.R_PAREN) {
-        if (ctx.finished) throw new Error('todo: write message');
+        if (ctx.finished) throw new Errors.MathSyntaxError(`Unexpected end of input in definition of function "${functionName}"`);
         if (lastWasComma) {
-            if (ctx.crntItem.subType == LexemeSubType.COMMA) throw new Error('todo: write message, 2 commas in a row');
+            if (ctx.crntItem.subType == LexemeSubType.COMMA) throw new Errors.MathSyntaxError(`Argument missing in definition of function "${functionName}"`);
             variables.push(ctx.crntItem.value);
             ctx.next();
         }
         else {
-            if (ctx.crntItem.subType == LexemeSubType.VARIABLE_ASSIGNMENT_NAME) throw new Error('todo: write message, 2 variables in a row');
+            if (ctx.crntItem.subType == LexemeSubType.VARIABLE_ASSIGNMENT_NAME) throw new Errors.MathSyntaxError(`Expected "," in definition of function "${functionName}"`);
             ctx.next();
         }
         var lastWasComma = ctx.peekPrevious().subType == LexemeSubType.COMMA;
@@ -240,11 +242,11 @@ function parseFunctionHeader(lexemes) {
 function parseFunctionCall(lexemes) {
     var ctx = new ParseContext(lexemes);
 
-    if (ctx.crntItem.type != LexemeType.FUNCTION_CALL) throw new Error('todo: write message, you say is func but is not');
+    if (ctx.crntItem.type != LexemeType.FUNCTION_CALL) throw new Errors.MathSyntaxError(`Tried calling something that is not a function`);
     var functionName = ctx.crntItem.value;
     ctx.next();
 
-    if (ctx.crntItem.subType != LexemeSubType.L_PAREN) throw new Error('todo: write message, expected (');
+    if (ctx.crntItem.subType != LexemeSubType.L_PAREN) throw new Errors.MathSyntaxError(`Expected "(" after function name "${functionName}"`);
     ctx.next();
     
     var args = [];
@@ -273,7 +275,7 @@ function parseFunctionCall(lexemes) {
         }
         ctx.next();
     }
-    if (ctx.peekPrevious().subType == LexemeSubType.COMMA) throw new Error('todo: write message. Argument missing');
+    if (ctx.peekPrevious().subType == LexemeSubType.COMMA) throw new Errors.MathSyntaxError(`Argument missing in call to function "${functionName}"`);
     if (crntArg.length > 0) saveCrntArg();
 
     function saveCrntArg() {
@@ -282,7 +284,7 @@ function parseFunctionCall(lexemes) {
             crntArg = [];
         }
         else {
-            throw new Error('todo: write message. Argument missing');
+            throw new Errors.MathSyntaxError(`Argument missing in call to function "${functionName}"`);
         }
     }
 

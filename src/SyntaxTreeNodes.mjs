@@ -39,7 +39,7 @@ const BinaryOperator = {
             return 0;
         }
         else {
-            throw new Error('What are you trying to assign. todo: write message');
+            throw new Errors.MathSyntaxError(`Cannot assign to a value of type ${a.constructor.name}`);
         }
     },
 }
@@ -72,13 +72,13 @@ const UnaryOperator = {
     [LexemeSubType.FACTORIAL] : (a, ctx) => {
         var aValue = a.evaluate(ctx);
         if (aValue < 0) throw new Errors.MathDomainError('Factorial function is undefined for negative numbers');
+        if (aValue % 1 != 0) throw new Errors.MathDomainError('Factorial function is not supported on decimal values');
 
         var total = 1;
         for (var i = 2; i <= aValue; i ++) {
             total *= i;
         }
         return total;
-        // todo: correct handling of decimal numbers
     }
 }
 

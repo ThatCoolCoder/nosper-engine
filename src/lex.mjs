@@ -2,6 +2,7 @@ import { spnr } from './lib/spnr.mjs'
 import { Lexeme, LexemeType, LexemeSubType } from './Lexeme.mjs';
 import { TokenType } from './Token.mjs';
 import ParseContext from './ParseContext.mjs';
+import * as Errors from './Errors.mjs';
 
 const symbolicOperatorLookup = {
     '+' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ADD],
@@ -111,8 +112,9 @@ export default function lex(tokens) {
 
     function lexFunctionHeader() {
         var result = [];
+        if (ctx.crntItem.type != TokenType.TEXT) throw new Errors.MathSyntaxError(`Unexpected token "${ctx.crntItem.type}" in function definition`);
         var name = ctx.crntItem.value[0];
-        // todo: error handling here
+        // todo: check name is valid
         result.push(new Lexeme(LexemeType.ASSIGNABLE, LexemeSubType.FUNCTION_ASSIGNMENT_NAME, name));
         ctx.next();
         
@@ -123,14 +125,14 @@ export default function lex(tokens) {
             // Read variable name then comma
             if (ctx.crntItem.type == TokenType.TEXT) {
                 var textLexemes = lexText(ctx.crntItem.value);
-                if (textLexemes.length != 1) throw new Error(`Invalid variable name: "${ctx.crntItem.value}"`);
+                if (textLexemes.length != 1) throw new Errors.MathSyntaxError(`Invalid argument name in definition of function "${name}": "${ctx.crntItem.value}"`);
                 var first = textLexemes[0];
-                if (first.subType != LexemeSubType.VARIABLE) throw new Error(`Invalid variable name: "${ctx.crntItem.value}"`);
+                if (first.subType != LexemeSubType.VARIABLE) throw new Errors.MathSyntaxError(`Invalid argument name in definition of function "${name}": "${ctx.crntItem.value}"`);
                 result.push(new Lexeme(LexemeType.ASSIGNABLE, LexemeSubType.VARIABLE_ASSIGNMENT_NAME, first.value));
                 ctx.next();
             }
             // Catch EOF
-            if (ctx.finished) throw new Error('Unexpected end of input');
+            if (ctx.finished) throw new Errors.MathSyntaxError(`Unexpected end of input in definition of function "${name}"`);
             // Get comma if it exists (we migt alternately be at the end in which case the next if kicks in)
             if (ctx.crntItem.type == TokenType.SYMBOLIC_OPERATOR) {
                 result.push(new Lexeme(LexemeType.SEPARATOR, LexemeSubType.COMMA, ','));
@@ -142,7 +144,7 @@ export default function lex(tokens) {
                 ctx.next();
                 break;
             }
-            else throw new Error(`Invalid token type: "${ctx.crntItem.type}"`)
+            else throw new Errors.MathSyntaxError(`Unexpected token in definition of function "${name}": "${ctx.crntItem.value}"`);
         }
         return result;
     }
@@ -153,7 +155,7 @@ export default function lex(tokens) {
 
         while (!ctx.finished) {
             var found = greedyFindFirst(ctx.remaining, spnr.obj.keys(symbolicOperatorLookup));
-            if (found == null) throw new Error(`Unexpected symbols: "${ctx.remaining}"`);
+            if (found == null) throw new Errors.MathSyntaxError(`Unexpected symbol(s): "${ctx.remaining}"`);
             var [type, subType] = symbolicOperatorLookup[found];
             result.push(new Lexeme(type, subType, found))
             ctx.next(found.length);
@@ -216,12 +218,10 @@ function postProcess(lexemes) {
 }
 
 function convertToVariableAssignmentNames(lexemes) {
-    // Convert a subtraction operation into a negation operation in some cases
+    // Convert variable reads into variable assignment names where appropriate
     var previous = null;
     return lexemes.map((lexeme, idx) => {
         if (lexeme.subType == LexemeSubType.ASSIGN) {
-            var previousTokenValid = true;
-
             if (idx >= 1 && previous.subType == LexemeSubType.VARIABLE)
             {
                 previous.type = LexemeType.ASSIGNABLE;
