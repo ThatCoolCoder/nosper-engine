@@ -7,8 +7,9 @@ export class EvaluationError extends Error {
 }
 
 export class MathSyntaxError extends EvaluationError {
-    constructor() {
-        super('Invalid syntax in expression');
+    constructor(extraInfo) {
+        extraInfo = extraInfo === undefined ? '' : `: ${extraInfo}`;
+        super(`Invalid syntax in expression${extraInfo}`);
     }
 }
 
@@ -42,5 +43,19 @@ export class UnmatchedBracketError extends EvaluationError {
         var innerMessage = wasNotClosed ? 'A bracket was opened but not closed'
             : 'A close bracket was found with no corresponding opening bracket';
         super(`Unmatched brackets: ${innerMessage}`);
+    }
+}
+
+export class ArgumentMissingError extends EvaluationError {
+    constructor(functionName, expectedArgs, providedCount) {
+        var missing = expectedArgs.concat([])
+        missing.splice(0, providedCount);
+        super(`Missing the following argument(s) in call to function "${functionName}": ${missing.join(', ')}`);
+    }
+}
+
+export class UnexpectedArgumentError extends EvaluationError {
+    constructor(functionName, expectedCount, providedCount) {
+        super(`${providedCount - expectedCount} unexpected argument(s) in call to function "${functionName}"`);
     }
 }

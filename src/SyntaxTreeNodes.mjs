@@ -184,6 +184,9 @@ export class FunctionCallNode extends SyntaxTreeNode {
             var scope = new Scope();
             var functionInfo = context.getFunctionFromStack(this.name);
 
+            if (this.args.length > functionInfo.argumentNames.length) throw new Errors.UnexpectedArgumentError(this.name, functionInfo.argumentNames.length, this.args.length);
+            if (this.args.length < functionInfo.argumentNames.length) throw new Errors.ArgumentMissingError(this.name, functionInfo.argumentNames, this.args.length);
+
             this.args.forEach((arg, idx) => scope.variables.set(functionInfo.argumentNames[idx], arg.evaluate(context)));
             context.scopeStack.push(scope);
 

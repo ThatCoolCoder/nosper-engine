@@ -83,7 +83,6 @@ function parseInner(lexemes) {
         // if it has function call, do that (also have to do before paren)
         var functionCallIndex = lexemes.findIndex(l => l.type == LexemeType.FUNCTION_CALL);
         if (functionCallIndex >= 0) {
-            console.log(functionCallIndex);
             var nesting = 0;
             var endBracketIndex = -1;
             for (var i = functionCallIndex + 1; i < lexemes.length; i ++) { // functionCallIndex + 1 to skip straight to the open paren

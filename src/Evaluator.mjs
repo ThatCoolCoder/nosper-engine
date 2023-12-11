@@ -3,7 +3,7 @@ import tokenise from './tokenise.mjs';
 import lex from './lex.mjs';
 import parse from './parse.mjs';
 import { EvaluationContext } from './EvaluationContext.mjs';
-import { MathSyntaxError } from './Errors.mjs';
+import { EvaluationError, MathSyntaxError } from './Errors.mjs';
 
 export class Evaluator {
     constructor() {
@@ -12,7 +12,7 @@ export class Evaluator {
 
     evaluate(expression, debugMode=false, context=this.context) {
         var tree = this.compile(expression, debugMode);
-        return this.evaluateCompiledExpression(tree, context);
+        return this.evaluateCompiledExpression(tree, context, debugMode);
     }
 
     compile(expression, debugMode=false) {
@@ -27,11 +27,20 @@ export class Evaluator {
         }
         catch (e) {
             if (debugMode) console.log('Error during compilation: ', e);
-            throw new MathSyntaxError();
+            if (e instanceof EvaluationError) throw e;
+            else throw new MathSyntaxError();
         }
     }
 
-    evaluateCompiledExpression(compiledExpression, context=this.context) {
-        return compiledExpression.evaluate(context);
+    evaluateCompiledExpression(compiledExpression, context=this.context, debugMode=false) {
+        try
+        {
+            return compiledExpression.evaluate(context);
+        }
+        catch (e) {
+            if (debugMode) console.log('Error during evaluation: ', e);
+            if (e instanceof EvaluationError) throw e;
+            else throw new MathSyntaxError();
+        }
     }
 }
