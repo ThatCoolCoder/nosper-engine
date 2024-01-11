@@ -6,8 +6,8 @@ import { EvaluationContext } from './EvaluationContext.mjs';
 import { EvaluationError, MathSyntaxError } from './Errors.mjs';
 
 export class Evaluator {
-    constructor() {
-        this.context = new EvaluationContext();
+    constructor(context=new EvaluationContext()) {
+        this.context = context;
     }
 
     evaluate(expression, debugMode=false, context=this.context) {
@@ -42,5 +42,13 @@ export class Evaluator {
             if (e instanceof EvaluationError) throw e;
             else throw new MathSyntaxError();
         }
+    }
+
+    applyLoadable(loadable) {
+        this.context.applyLoadable(loadable, this);
+    }
+
+    removeLoadable(loadable) {
+        this.context.removeLoadable(loadable);
     }
 }

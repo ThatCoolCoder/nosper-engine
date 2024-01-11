@@ -30,17 +30,46 @@ The calculator has a fairly complex input langauge and documentation needs to be
 
 #### Loadables
 
-A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluatorInstance.applyLoadable()` and `evaluatorInstance.removeLoadable()`.
+A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`.
 
 #### Separate compilation and evaluating
 
-If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `var expr = evaluatorInstance.compile()` and then later `evaluatorInstance.evaluateCompiledExpression(expr)`. This means that the expression isn't parsed for every invocation, improving performance
+If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `var expr = evaluator.compile()` and then later `evaluator.evaluateCompiledExpression(expr)`. This means that the expression isn't parsed for every invocation, improving performance.
 
 ## Releases
 
 This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
 
 (Maintainers: please update this doc when creating a new release branch)
+
+## Future plans:
+- lambdas/anonymous functions. 
+    - probably not that hard to do with current syntax, just need to make an inline function lexer+parser
+    - difficulty will be that it requires data types (or we could just duck-type), and requires elegant syntax for calling the value of a variable (so in other words a level of indirection similar to pointers)
+        - perhaps we can prohibit variables and functions from having the same name and thus the function call operator will call the value of a variable
+            - store in dict of { type: 'var', value: 42 } to prevent overlap? or manual checking between 2 dicts is neater and more robust?
+- ? make current function def system just syntactic sugar. We only have variables, the @ becomes a ~~prefix~~ double prefix(?) operator that invokes the value of the variable after it
+    - if following item is not invokable then compile or runtime error
+    - compile error if is a literal or something ridiculous
+    - will remove special-case parsing
+        - actually it won't as now we still need to treat multi-letter function names correctly when they're being called, and sugar-assigned functions will not be passable unless we allow prefixing with an underscore or something
+    - also means that we will now need a set data type to be constructable so that the values after the function
+        - and then inevitably people (i.e me) will want set deconstruction, intersection, union etc. Which sounds like excessive scope for simply allowing lambdas
+        - ok maybe this idea is for v3
+- conditions
+    - for now can be implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
+    - ternary will be specified to be short circuiting so that we can use it for both 
+- add logical operators
+    - |, ^, &, ~ are free in the syntax
+    - should we have a separate bool type or just do it c-style
+- immutable values for inbuilt stuff
+    - make loaded loadables immutable?
+    - requires attaching payload to values
+- data types?
+    - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
+- distinction between expressions and statement?
+    - requires moderate reworking as we have to give 
+- (minor) move to storing custom functions as 
 
 ## Creating loadables
 
@@ -54,7 +83,9 @@ const myLoadable = {
         'm_cow': { value: 500, description: 'The mass of a single cow' },
     },
     functions: {
-        // 'calculate_acceleration' : { args: ['f', 'm'], value: evaluator.compile(') }
+        // note that name, args and body are combined together when applying, so the end result would be equivalent to:
+        //      def calculate_acceleration(f, m) = f * m
+        'calculate_acceleration' : { args: ['f', 'm'], body: 'f * m' } 
     }
     // todo: finish writing this
 }

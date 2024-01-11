@@ -67,7 +67,7 @@ export const LexemeSubType = {
     NUMBER: 0,
     VARIABLE: 0, 
     PREVIOUS_ANSWER: 0,
-    CONSTANT: 0,
+    CONSTANT: 0, // todo: not being used, find a use for it or DELETE
     
     // assignable
     VARIABLE_ASSIGNMENT_NAME: 0,

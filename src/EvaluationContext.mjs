@@ -1,10 +1,15 @@
-import { spnr } from './lib/spnr.mjs'
+import { spnr } from './lib/spnr.mjs';
 
 export class EvaluationContext {
     constructor(variables=new ValueGroup(), functions=new ValueGroup()) {
         this.useRadians = true;
         this.scopeStack = [new Scope(variables, functions)];
         this.previousAnswer = 0;
+        this.functionEvaluator = 0; // maybe it's crazy to 
+
+        // possibilities:
+        // option to pass in an evaulator (which would be set to ), and default to the below
+        // context creates a whole new evaluator sharing this context
     }
 
     get rootScope() {
@@ -48,14 +53,16 @@ export class EvaluationContext {
         return this.scopeStack.some(s => scopeToItem(s).isDefined(itemName));
     }
 
-    applyLoadable(loadable) {
+    applyLoadable(loadable, evaluator) {
         for (var varName in loadable.variables) {
             this.rootScope.variables.set(varName, loadable.variables[varName].value);
         }
 
-
         for (var funcName in loadable.functions) {
-            this.rootScope.variables.set(funcName, loadable.functions[funcName].compiledValue);
+            // Yes injection is possible. No I don't care as you are running someone's code by using a loadable anyway
+            var joinedArgs = loadable.functions[funcName].args.join(', ');
+            var combined = `def ${funcName}(${joinedArgs}) = ${loadable.functions[funcName].body}`;
+            evaluator.evaluate(combined, false, this);
         }
     }
 
@@ -69,6 +76,21 @@ export class EvaluationContext {
             this.rootScope.functions.delete(funcName);
         }
     }
+
+    dump() {
+        return {
+            useRadians: this.useRadians,
+            scopeStack: this.scopeStack,
+            previousAnswer: this.previousAnswer,
+        };
+    }
+}
+
+EvaluationContext.load = function(dump) {
+    var ctx = new EvaluationContext();
+    ctx.useRadians = dump.useRadians;
+    ctx.scopeStack = dump.scopeStack;
+    ctx.previousAnswer = dump.previousAnswer;
 }
 
 export class Scope {
