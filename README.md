@@ -4,9 +4,6 @@ Mathematical engine (calculator) library written in Javascript that works in bro
 
 This is the v2dev branch - here we are developing an improved engine that will be more capable and hopefully more maintainable.
 
-todo still:
-- make decision on precedence of sinx^2 (currently = (sin(x))^2)
-
 ## Usage
 
 This project uses a rolling release system where versions are kept in git branches, so add the project as a git submodule with `git submodule add https://github.com/ThatCoolCoder/nosper-engine`. Then navigate to the directory where the submodule was cloned to, and choose the latest stable branch with `git checkout v1`. 

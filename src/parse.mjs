@@ -22,13 +22,13 @@ import * as Errors from './Errors.mjs';
 // binary operators like +-= etc (in order defined below)
 
 // (higher number is evaluated first)
-const OperatorPrecedence = {
+const BaseOperatorPrecedence = {
     [LexemeType.BINARY_OPERATOR]: 0,
-    [LexemeType.PREFIX_OPERATOR]: 1,
-    [LexemeType.POSTFIX_OPERATOR]: 2,
+    [LexemeType.PREFIX_OPERATOR]: 4,
+    [LexemeType.POSTFIX_OPERATOR]: 6,
 }
 
-const BinaryOperatorPrecedence = {
+const SpecialOperatorPrecedence = {
     [LexemeSubType.ASSIGN]: 0,
 
     [LexemeSubType.DIVIDE_LOW_PRECEDENCE] : 1,
@@ -40,7 +40,7 @@ const BinaryOperatorPrecedence = {
     [LexemeSubType.DIVIDE] : 3,
     [LexemeSubType.MODULO] : 3,
 
-    [LexemeSubType.EXPONENTIATE] : 4,
+    [LexemeSubType.EXPONENTIATE] : 5,
 };
 
 export default function parse(lexemes) {
@@ -167,7 +167,7 @@ function parseInner(lexemes) {
         for (var i = lexemes.length - 1; i >= 0; i --) {
             var crntLexeme = lexemes[i];
             if (! (crntLexeme instanceof Lexeme)) continue;
-            if (! (crntLexeme.type in OperatorPrecedence)) continue;
+            if (! (crntLexeme.type in BaseOperatorPrecedence)) continue;
             if (highestLexeme == null || hasHigherPrecedence(crntLexeme, highestLexeme)) {
                 highestLexeme = crntLexeme;
                 index = i;
@@ -180,11 +180,12 @@ function parseInner(lexemes) {
     function hasHigherPrecedence(a, b) {
         // Returns whether precedence of a >= precedence of b.
         // (earlier has higher precedence so in the equal case a still has higher)
+        return precedenceOf(a) > precedenceOf(b);
         if (a.type != b.type) {
-            return OperatorPrecedence[a.type] >= OperatorPrecedence[b.type];
+            return BaseOperatorPrecedence[a.type] >= BaseOperatorPrecedence[b.type];
         }
         else if (a.type == LexemeType.BINARY_OPERATOR) {
-            return BinaryOperatorPrecedence[a.subType] >= BinaryOperatorPrecedence[b.subType];
+            return SpecialOperatorPrecedence[a.subType] >= SpecialOperatorPrecedence[b.subType];
         }
         else if (a.type == LexemeType.PREFIX_OPERATOR) {
             return false; // latest prefix operators are executed first
@@ -192,7 +193,11 @@ function parseInner(lexemes) {
         else if (a.type == LexemeType.POSTFIX_OPERATOR) {
             return true; // earliest postfix operators are executed first
         }
-        throw new Errors(`Cannot compare precedence of tokens of type ${a.type}`)
+        throw new Errors.MathSyntaxError(`Cannot compare precedence of tokens of type ${a.type}`);
+    }
+
+    function precedenceOf(lexeme) {
+        return lexeme.subType in SpecialOperatorPrecedence ? SpecialOperatorPrecedence[lexeme.subType] : BaseOperatorPrecedence[lexeme.type];
     }
 
     function replaceSlice(startIdx, length, replaceVal) {

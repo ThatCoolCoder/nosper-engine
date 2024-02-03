@@ -112,8 +112,6 @@ export class ValueNode extends SyntaxTreeNode {
             return this.value;
         }
         else if (this.subType == LexemeSubType.VARIABLE) {
-            // todo: checking here and in assignment to see if var names are actually valid, in case invalid ones slip thru parser?
-            // (or should we just assume parser is right and move associated checking to only be for loadables)
             var value = context.getVariableFromStack(this.value);
 
             if (value == null) throw new Errors.UndefinedVariableError(this.value, context.isFunctionDefined(value));
