@@ -26,9 +26,28 @@ The calculator has a fairly complex input langauge - see [InputLanguage.md](Inpu
 
 ## Advanced usage
 
-#### Loadables
+## Using loadables
 
-A loadable is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`, or the equivalent functions on `EvaluationContext``.
+A loadable is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`, or the equivalent functions on `EvaluationContext`.
+
+## Creating loadables
+
+Loadables are just dictionaries of data (no class is needed - this means loadables can be provided by libraries without requiring those libraries to have any deps). Below is the structure required:
+```js
+const myLoadable = {
+    name: 'My amazing loadable',
+    description: 'I don\'t need a description, it\'s just that amazing',
+    variables: {
+        'a': { value: 5, description: 'a' },
+        'm_cow': { value: 500, description: 'The mass of a single cow, in kilograms' },
+    },
+    functions: {
+        // note that name, args and body are combined together when applying, so the end result would be equivalent to:
+        //      def calculate_acceleration(f, m) = f / m
+        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration of an object when a force is applied' } 
+    }
+}
+``` 
 
 #### Separate compilation and evaluating
 
@@ -45,7 +64,7 @@ This project uses a rolling release system, where stable versions can be obtaine
     - probably not that hard to do with current syntax, just need to make an inline function lexer+parser
     - difficulty will be that it requires data types (or we could just duck-type), and requires elegant syntax for calling the value of a variable (so in other words a level of indirection similar to pointers)
         - perhaps we can prohibit variables and functions from having the same name and thus the function call operator will call the value of a variable
-            - store in dict of { type: 'var', value: 42 } to prevent overlap? or manual checking between 2 dicts is neater and more robust?
+            - store in dict of { type: 'scalar', value: 42 } to prevent overlap? or manual checking between 2 dicts is neater and more robust?
 - ? make current function def system just syntactic sugar. We only have variables, the @ becomes a ~~prefix~~ double prefix(?) operator that invokes the value of the variable after it
     - if following item is not invokable then compile or runtime error
     - compile error if is a literal or something ridiculous
@@ -68,25 +87,6 @@ This project uses a rolling release system, where stable versions can be obtaine
 - distinction between expressions and statement?
     - requires moderate reworking as we have to make parser smarter
 - (minor) move to storing custom functions as (what was this going to say?)
-
-## Creating loadables
-
-Loadables are just dictionaries of data (no class is needed - this means loadables can be provided by libraries without requiring those libraries to have any deps). Below is the structure required:
-```js
-const myLoadable = {
-    name: 'My amazing loadable',
-    description: 'I don\'t need a description, it\'s just that amazing',
-    variables: {
-        'a': { value: 5, description: 'a' },
-        'm_cow': { value: 500, description: 'The mass of a single cow, in kilograms' },
-    },
-    functions: {
-        // note that name, args and body are combined together when applying, so the end result would be equivalent to:
-        //      def calculate_acceleration(f, m) = f * m
-        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration of an object when a force is applied' } 
-    }
-}
-``` 
 
 ## Overview of the code
 

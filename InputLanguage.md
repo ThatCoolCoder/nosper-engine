@@ -46,11 +46,15 @@ sqrt(16)2pi         = 39.985...
 
 ## All features
 
+### Multiple expressions
+
+Multiple expressions can be evaluated at once by separating them with semicolons. The overall expression evaluates to the last one returned. For instance, `a = 2; a + 1` evaluates to 3.
+
 ### Memory
 
 #### Previous answer
 
-The value of the previous answer can be accessed using `ans`, eg `ans * 2`
+The value of the previous answer can be accessed using `ans`, eg `ans * 2`.
 
 #### Variables
 
@@ -76,7 +80,7 @@ am_cow b            a * m_cow * b
 
 Custom functions can be defined like `def multiply_numbers(a, b) = a * b`, then called like `@multiply_numbers(2, 3)`. Any expression can be given to a function as an argument, so `@multiply_numbers(1 + 2, m_cow)` or even `@multiply_numbers(@multiply_numbers(2, 3), 3)` are also valid expressions. To create a function with no arguments just do `def myfunc() = a + 2` - here the global variable a is being used instead of having a value passed in.
 
-Functions can call other functions. Each call has its own scope, so arguments passed to it and variables defined inside do not leak out (although this currently isn't hugely useful as functions can only have one expression inside). 
+Functions can call other functions. Each call has its own scope, so arguments passed to it and variables defined inside do not leak out. Multiple-expression functions can be created using parentheses and `;`, eg `def f(a, b) = (_intermediate = a * b; _intermediate + 1)`. (the parentheses are required as `;` otherwise has lower precedence than `=`)
 
 #### Unassigning
 

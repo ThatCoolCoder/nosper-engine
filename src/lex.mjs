@@ -19,7 +19,8 @@ const symbolicOperatorLookup = {
     
     '=' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ASSIGN],
 
-    ',' : [LexemeType.SEPARATOR, LexemeSubType.COMMA]
+    ',' : [LexemeType.SEPARATOR, LexemeSubType.COMMA],
+    ';' : [LexemeType.BINARY_OPERATOR, LexemeSubType.EXPRESSION_GROUPING]
 };
 
 const textValueLookup = {

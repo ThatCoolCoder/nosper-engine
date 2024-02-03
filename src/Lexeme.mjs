@@ -29,6 +29,7 @@ export const LexemeSubType = {
     MODULO: 0,
     EXPONENTIATE: 0,
     ASSIGN: 0,
+    EXPRESSION_GROUPING: 0, // yes, this is implemented as a binary operator. It's a little counterintuitive but it works, so why not?
 
     // prefix operator: trig
     SINE: 0,

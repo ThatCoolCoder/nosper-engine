@@ -1,6 +1,6 @@
 import { spnr } from './lib/spnr.mjs'
 import { LexemeSubType } from "./Lexeme.mjs";
-import { ValueGroup, Scope, FunctionInfo } from './EvaluationContext.mjs';
+import { Scope, FunctionInfo } from './EvaluationContext.mjs';
 import { InbuiltFunctions } from './InbuiltFunctions.mjs';
 import * as Errors from './Errors.mjs';
 
@@ -43,6 +43,10 @@ const BinaryOperator = {
             throw new Errors.MathSyntaxError(`Cannot assign to a value of type ${a.constructor.name}`);
         }
     },
+    [LexemeSubType.EXPRESSION_GROUPING]: (a, b, ctx) => {
+        a.evaluate(ctx);
+        return b.evaluate(ctx);
+    }
 }
 
 const UnaryOperator = {

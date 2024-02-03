@@ -29,8 +29,10 @@ const BaseOperatorPrecedence = {
 }
 
 const SpecialOperatorPrecedence = {
-    [LexemeSubType.ASSIGN]: 0,
+    [LexemeSubType.EXPRESSION_GROUPING] : -1,
 
+    [LexemeSubType.ASSIGN] : 0,
+    
     [LexemeSubType.DIVIDE_LOW_PRECEDENCE] : 1,
 
     [LexemeSubType.ADD] : 2,
