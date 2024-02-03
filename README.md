@@ -18,9 +18,11 @@ console.log(evaluator.evaluate('5 * 2')); // will print 10
 
 `Evaluator.evaluate()` and related functions may throw an `Errors.EvaluationError`. See `src/Errors.mjs` for list of all derived errors, if you wish to handle them separately. Note that new derived errors may be created without bumping the version.
 
+Switch between degrees and radians by setting `evaluator.context.useRadians`.
+
 ## Input syntax
 
-The calculator has a fairly complex input langauge and documentation needs to be created. 
+The calculator has a fairly complex input langauge - see [InputLanguage.md](InputLanguage.md) for more info.
 
 ## Advanced usage
 

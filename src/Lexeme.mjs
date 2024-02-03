@@ -55,7 +55,7 @@ export const LexemeSubType = {
     // postfix operator
     FACTORIAL: 0,
 
-    // ternary operator
+    // ternary operator (todo: implement parse rules for him)
     TERNARY_IF_ELSE: 0,
 
     // separator

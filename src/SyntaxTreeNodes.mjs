@@ -47,15 +47,18 @@ const BinaryOperator = {
 
 const UnaryOperator = {
     // Prefix trig:
-    [LexemeSubType.NEGATE]: (a, ctx) => -a.evaluate(ctx),
     [LexemeSubType.SINE]: (a, ctx) => Math.sin(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
     [LexemeSubType.ARC_SINE]: (a, ctx) => convertFromRadians(Math.asin(a.evaluate(ctx)), ctx.useRadians),
+    [LexemeSubType.COSECANT]: (a, ctx) => 1 / Math.sin(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
     [LexemeSubType.COSINE]: (a, ctx) => Math.cos(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
     [LexemeSubType.ARC_COSINE]: (a, ctx) => convertFromRadians(Math.acos(a.evaluate(ctx)), ctx.useRadians),
+    [LexemeSubType.SECANT]: (a, ctx) => 1 / Math.cos(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
     [LexemeSubType.TANGENT]: (a, ctx) => Math.tan(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
     [LexemeSubType.ARC_TANGENT]: (a, ctx) => convertFromRadians(Math.atan(a.evaluate(ctx)), ctx.useRadians),
-
+    [LexemeSubType.COTANGENT]: (a, ctx) => 1 / Math.tan(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
+    
     // Prefix not trig
+    [LexemeSubType.NEGATE]: (a, ctx) => -a.evaluate(ctx),
     [LexemeSubType.SQUARE_ROOT]: (a, ctx) => {
         var aValue = a.evaluate(ctx);
         if (aValue < 0) throw new Errors.MathDomainError('Attempted to find square root of negative number; this calculator does not support computation of imaginary numbers');
