@@ -114,7 +114,6 @@ export default function lex(tokens) {
         var result = [];
         if (ctx.crntItem.type != TokenType.TEXT) throw new Errors.MathSyntaxError(`Unexpected token "${ctx.crntItem.type}" in function definition`);
         var name = ctx.crntItem.value;
-        // todo: check name is valid
         result.push(new Lexeme(LexemeType.ASSIGNABLE, LexemeSubType.FUNCTION_ASSIGNMENT_NAME, name));
         ctx.next();
         
@@ -206,6 +205,10 @@ export default function lex(tokens) {
         }
 
         return null;
+    }
+
+    function isFunctionNameValid() {
+
     }
 }
 

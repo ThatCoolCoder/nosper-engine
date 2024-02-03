@@ -46,11 +46,11 @@ const BinaryOperatorPrecedence = {
 export default function parse(lexemes) {
     // Do one-off stuff before the recursive bit
 
-    // todo: find brackets and check they balance
+    ensureBracketsMatch(lexemes);
 
     var tree = parseInner(lexemes);
 
-    // todo: check syntax
+    // todo: check syntax?
 
     return tree;
 }
@@ -118,7 +118,6 @@ function parseInner(lexemes) {
                     }
                 }
             }
-            // todo: error if not found (or perhaps not as we do a bracket check before)
 
             var parsed = parseInner(lexemes.slice(startBracketIndex + 1, endBracketIndex));
             replaceSliceByEndIdx(startBracketIndex, endBracketIndex + 1, parsed);
@@ -289,4 +288,16 @@ function parseFunctionCall(lexemes) {
     }
 
     return new FunctionCallNode(functionName, args);
+}
+
+function ensureBracketsMatch(lexemes) {
+    var nesting = 0;
+    for (var i = 0; i < lexemes.length; i ++) {
+        var lexeme = lexemes[i];
+        if (lexeme.subType == LexemeSubType.L_PAREN) nesting += 1;
+        else if (lexeme.subType == LexemeSubType.R_PAREN) nesting -= 1;
+    }
+
+    if (nesting < 0) throw new Errors.UnmatchedBracketError(false);
+    if (nesting > 0) throw new Errors.UnmatchedBracketError(true);
 }

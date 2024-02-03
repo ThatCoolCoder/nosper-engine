@@ -5,7 +5,6 @@ Mathematical engine (calculator) library written in Javascript that works in bro
 This is the v2dev branch - here we are developing an improved engine that will be more capable and hopefully more maintainable.
 
 todo still:
-- get loadables working fully
 - make decision on precedence of sinx^2 (currently = (sin(x))^2)
 
 ## Usage
@@ -68,8 +67,8 @@ This project uses a rolling release system, where stable versions can be obtaine
 - strict data typing?
     - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
 - distinction between expressions and statement?
-    - requires moderate reworking as we have to give 
-- (minor) move to storing custom functions as 
+    - requires moderate reworking as we have to make parser smarter
+- (minor) move to storing custom functions as (what was this going to say?)
 
 ## Creating loadables
 
@@ -85,7 +84,7 @@ const myLoadable = {
     functions: {
         // note that name, args and body are combined together when applying, so the end result would be equivalent to:
         //      def calculate_acceleration(f, m) = f * m
-        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m' } 
+        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration of an object when a force is applied' } 
     }
 }
 ``` 
