@@ -12,7 +12,7 @@ export class Evaluator {
 
     evaluate(expression, debugMode=false, context=this.context) {
         var tree = this.compile(expression, debugMode);
-        return this.evaluateCompiledExpression(tree, context, debugMode);
+        return this.evaluateCompiledExpression(tree, debugMode, context);
     }
 
     compile(expression, debugMode=false) {
@@ -32,9 +32,8 @@ export class Evaluator {
         }
     }
 
-    evaluateCompiledExpression(compiledExpression, context=this.context, debugMode=false) {
-        try
-        {
+    evaluateCompiledExpression(compiledExpression, debugMode=false, context=this.context) {
+        try {
             return compiledExpression.evaluate(context);
         }
         catch (e) {
