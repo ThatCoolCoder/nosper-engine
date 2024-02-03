@@ -1,31 +1,40 @@
 // (run in nodejs, not browser)
 
 import { Evaluator } from '../src/Evaluator.mjs';
-import { ValueGroup } from '../src/EvaluationContext.mjs';
-import { Loadable } from '../src/Loadable.mjs';
 
-var physicsLoadables = new Loadable(
-    new ValueGroup({
-        'g' : -9.81,
-        'G' : 6.6743e-11
-    }))
+const physicsLoadable = {
+    name: 'Phyyyyyyysics',
+    description: 'Common physics constants and calculations',
+    variables: {
+        'g': { value: 9.81, description: 'force of gravity on earth' }
+    },
+    functions: {
+        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration experienced by an object when a force is applied' }
+    }
+}
 
 var evaluator = new Evaluator();
 
-runAndCatch('$g', 'Should fail, as g is not defined:');
+runAndCatch('g', 'Should fail as gravity isn\'t defined')
 
-evaluator.load(physicsLoadables);
-runAndCatch('$g', 'Should work:');
+evaluator.applyLoadable(physicsLoadable);
 
-evaluator.unload(physicsLoadables);
-runAndCatch('$g', 'Should fail again:');
+runAndCatch('g', 'Should work');
+runAndCatch('@calculate_acceleration(10, 2)', 'Should work and = 5');
+
+evaluator.removeLoadable(physicsLoadable);
+runAndCatch('g', 'Shouldn\'t work');
+runAndCatch('@calculate_acceleration(10, 2)', 'Shouldn\'t work');
 
 function runAndCatch(expression, note=null) {
-    if (note != null) console.log(note);
+    var text = '';
+    if (note != null) text = `${note}: `;
     try {
-        console.log(evaluator.evaluate(expression));
+        text += evaluator.evaluate(expression);
     }
     catch (e) {
-        console.log(e.message);
+        text += e.message;
     }
+
+    console.log(text);
 }

@@ -1,6 +1,7 @@
 import { spnr } from './lib/spnr.mjs'
 import { LexemeSubType } from "./Lexeme.mjs";
 import { ValueGroup, Scope, FunctionInfo } from './EvaluationContext.mjs';
+import { InbuiltFunctions } from './InbuiltFunctions.mjs';
 import * as Errors from './Errors.mjs';
 
 const BinaryOperator = {
@@ -107,12 +108,10 @@ export class ValueNode extends SyntaxTreeNode {
     }
 
     evaluate(context) {
-        if (this.subType == LexemeSubType.NUMBER)
-        {
+        if (this.subType == LexemeSubType.NUMBER) {
             return this.value;
         }
-        else if (this.subType == LexemeSubType.VARIABLE)
-        {
+        else if (this.subType == LexemeSubType.VARIABLE) {
             // todo: checking here and in assignment to see if var names are actually valid, in case invalid ones slip thru parser?
             // (or should we just assume parser is right and move associated checking to only be for loadables)
             var value = context.getVariableFromStack(this.value);
@@ -121,8 +120,7 @@ export class ValueNode extends SyntaxTreeNode {
 
             return value;
         }
-        else if (this.subType == LexemeSubType.PREVIOUS_ANSWER)
-        {
+        else if (this.subType == LexemeSubType.PREVIOUS_ANSWER) {
             return context.previousAnswer;
         }
     }
@@ -194,6 +192,22 @@ export class FunctionCallNode extends SyntaxTreeNode {
             
             context.scopeStack.pop();
             return result;
+        }
+        else if (this.name in InbuiltFunctions) {
+            var func = InbuiltFunctions[this.name];
+
+            // Always check for too few
+            if (this.args.length < func.nArgs) throw new Errors.InbuiltArgumentMissingError(this.name, func.nArgs, this.args.length);
+            
+            if (func.variadic) {
+                return func.definition(context, this.args);
+            }
+            else {
+                // Only check for too many if not variadic
+                if (this.args.length > func.nArgs) throw new Errors.UnexpectedArgumentError(this.name, func.nArgs, this.args.length);
+                return func.definition(context, ...this.args);
+            }
+
         }
         else {
             throw new Errors.UndefinedFunctionError(this.name, context.isVariableDefined(this.name));

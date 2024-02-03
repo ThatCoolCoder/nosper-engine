@@ -1,4 +1,4 @@
-# nosper-engine
+# Nosper Engine
 
 Mathematical engine (calculator) library written in Javascript that works in browser environments and in nodejs.
 
@@ -30,11 +30,11 @@ The calculator has a fairly complex input langauge and documentation needs to be
 
 #### Loadables
 
-A `Loadable` is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`.
+A loadable is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`, or the equivalent functions on `EvaluationContext``.
 
 #### Separate compilation and evaluating
 
-If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `var expr = evaluator.compile()` and then later `evaluator.evaluateCompiledExpression(expr)`. This means that the expression isn't parsed for every invocation, improving performance.
+If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `var compiled = evaluator.compile(expression)` and then later `evaluator.evaluateCompiledExpression(expr)`. This means that the expression isn't parsed for every invocation, improving performance.
 
 ## Releases
 
@@ -80,12 +80,12 @@ const myLoadable = {
     description: 'I don\'t need a description, it\'s just that amazing',
     variables: {
         'a': { value: 5, description: 'a' },
-        'm_cow': { value: 500, description: 'The mass of a single cow' },
+        'm_cow': { value: 500, description: 'The mass of a single cow, in kilograms' },
     },
     functions: {
         // note that name, args and body are combined together when applying, so the end result would be equivalent to:
         //      def calculate_acceleration(f, m) = f * m
-        'calculate_acceleration' : { args: ['f', 'm'], body: 'f * m' } 
+        'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m' } 
     }
     // todo: finish writing this
 }

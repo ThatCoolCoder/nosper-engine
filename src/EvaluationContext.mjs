@@ -5,11 +5,6 @@ export class EvaluationContext {
         this.useRadians = true;
         this.scopeStack = [new Scope(variables, functions)];
         this.previousAnswer = 0;
-        this.functionEvaluator = 0; // maybe it's crazy to 
-
-        // possibilities:
-        // option to pass in an evaulator (which would be set to ), and default to the below
-        // context creates a whole new evaluator sharing this context
     }
 
     get rootScope() {
@@ -70,7 +65,6 @@ export class EvaluationContext {
         for (var varName in loadable.variables) {
             this.rootScope.variables.delete(varName);
         }
-
 
         for (var funcName in loadable.functions) {
             this.rootScope.functions.delete(funcName);
