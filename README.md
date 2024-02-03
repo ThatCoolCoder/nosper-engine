@@ -26,11 +26,11 @@ The calculator has a fairly complex input langauge - see [InputLanguage.md](Inpu
 
 ## Advanced usage
 
-## Using loadables
+### Using loadables
 
 A loadable is a collection of predefined functions and variables that can be loaded at runtime. They can be managed using `evaluator.applyLoadable()` and `evaluator.removeLoadable()`, or the equivalent functions on `EvaluationContext`.
 
-## Creating loadables
+### Creating loadables
 
 Loadables are just dictionaries of data (no class is needed - this means loadables can be provided by libraries without requiring those libraries to have any deps). Below is the structure required:
 ```js
@@ -47,9 +47,9 @@ const myLoadable = {
         'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration of an object when a force is applied' } 
     }
 }
-``` 
+```
 
-#### Separate compilation and evaluating
+### Separate compilation and evaluating
 
 If for some reason, you want to compile an expression separately from evaluating it (such as in the case where you want to re-evaluate a function with different variables), you can use `var compiled = evaluator.compile(expression)` and then later `evaluator.evaluateCompiledExpression(expr)`. This means that the expression isn't parsed for every invocation, improving performance.
 

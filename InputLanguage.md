@@ -78,7 +78,7 @@ am_cow b            a * m_cow * b
 
 #### Custom functions
 
-Custom functions can be defined like `def multiply_numbers(a, b) = a * b`, then called like `@multiply_numbers(2, 3)`. Any expression can be given to a function as an argument, so `@multiply_numbers(1 + 2, m_cow)` or even `@multiply_numbers(@multiply_numbers(2, 3), 3)` are also valid expressions. To create a function with no arguments just do `def myfunc() = a + 2` - here the global variable a is being used instead of having a value passed in.
+Custom functions can be defined like `def multiply_numbers(a, b) = a * b`, then called like `@multiply_numbers(2, 3)`. Any expression can be given to a function as an argument, so `@multiply_numbers(1 + 2, m_cow)` or even `@multiply_numbers(@multiply_numbers(2, 3), 3)` are also valid expressions. To create a function with no arguments just do `def myfunc() = a + 2` - this example utilises a global variable instead of having a value passed in. Note that it's not possible to mutate a global variable from within a function, assignment of a variable always assigns to the current scope.
 
 Functions can call other functions. Each call has its own scope, so arguments passed to it and variables defined inside do not leak out. Multiple-expression functions can be created using parentheses and `;`, eg `def f(a, b) = (_intermediate = a * b; _intermediate + 1)`. (the parentheses are required as `;` otherwise has lower precedence than `=`)
 
