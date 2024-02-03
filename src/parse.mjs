@@ -1,6 +1,5 @@
-import { spnr } from './lib/spnr.mjs';
 import { Lexeme, LexemeType, LexemeSubType } from './Lexeme.mjs';
-import { AssignableNode, BinaryOperatorNode, FunctionCallNode, FunctionHeaderNode, SyntaxTreeNode, UnaryOperatorNode, ValueNode } from './SyntaxTreeNodes.mjs';
+import { AssignableNode, BinaryOperatorNode, FunctionHeaderNode, UnaryOperatorNode, ValueNode } from './SyntaxTreeNodes.mjs';
 import ParseContext from './ParseContext.mjs';
 import * as Errors from './Errors.mjs';
 
@@ -16,20 +15,20 @@ import * as Errors from './Errors.mjs';
 
 
 
-// Order of operations
-// first postfix unary operators like factorial
-// then prefix unary operators like log, sqrt, negate (in order of right to left, ie closest to value to far from value)
-// binary operators like +-= etc (in order defined below)
+// Order of operations used to be simple but now it's messy. But it appears to work as one would expect so I don't have a problem with it.
 
 // (higher number is evaluated first)
 const BaseOperatorPrecedence = {
     [LexemeType.BINARY_OPERATOR]: 0,
     [LexemeType.PREFIX_OPERATOR]: 4,
     [LexemeType.POSTFIX_OPERATOR]: 6,
+    [LexemeType.DOUBLE_PREFIX_OPERATOR]: 7,
 }
 
 const SpecialOperatorPrecedence = {
     [LexemeSubType.EXPRESSION_GROUPING] : -1,
+    
+    [LexemeSubType.ITEM_GROUPING] : -0.5,
 
     [LexemeSubType.ASSIGN] : 0,
     
@@ -84,25 +83,25 @@ function parseInner(lexemes) {
         }
 
         // if it has function call, do that (also have to do before paren)
-        var functionCallIndex = lexemes.findIndex(l => l.type == LexemeType.FUNCTION_CALL);
-        if (functionCallIndex >= 0) {
-            var nesting = 0;
-            var endBracketIndex = -1;
-            for (var i = functionCallIndex + 1; i < lexemes.length; i ++) { // functionCallIndex + 1 to skip straight to the open paren
-                var lexeme = lexemes[i];
-                if (lexeme.subType == LexemeSubType.L_PAREN) nesting ++;
-                else if (lexeme.subType == LexemeSubType.R_PAREN) {
-                    nesting --;
-                    if (nesting == 0) {
-                        endBracketIndex = i
-                        break;
-                    }
-                }
-            }
-            var parsed = parseFunctionCall(lexemes.slice(functionCallIndex, endBracketIndex + 1));
-            replaceSliceByEndIdx(functionCallIndex, endBracketIndex + 1, parsed);
-            continue;
-        }
+        // var functionCallIndex = lexemes.findIndex(l => l.type == LexemeType.FUNCTION_CALL);
+        // if (functionCallIndex >= 0) {
+        //     var nesting = 0;
+        //     var endBracketIndex = -1;
+        //     for (var i = functionCallIndex + 1; i < lexemes.length; i ++) { // functionCallIndex + 1 to skip straight to the open paren
+        //         var lexeme = lexemes[i];
+        //         if (lexeme.subType == LexemeSubType.L_PAREN) nesting ++;
+        //         else if (lexeme.subType == LexemeSubType.R_PAREN) {
+        //             nesting --;
+        //             if (nesting == 0) {
+        //                 endBracketIndex = i
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     var parsed = parseFunctionCall(lexemes.slice(functionCallIndex, endBracketIndex + 1));
+        //     replaceSliceByEndIdx(functionCallIndex, endBracketIndex + 1, parsed);
+        //     continue;
+        // }
 
         // if contains brackets, do that
         var startBracketIndex = lexemes.findIndex(l => l.subType == LexemeSubType.L_PAREN);
@@ -153,6 +152,9 @@ function parseInner(lexemes) {
         else if (lexeme.type == LexemeType.BINARY_OPERATOR) {
             replaceSlice(idx - 1, 3, new BinaryOperatorNode(lexemes[idx - 1], lexemes[idx + 1], lexeme.subType));
         }
+        else if (lexeme.type == LexemeType.DOUBLE_PREFIX_OPERATOR) {
+            replaceSlice(idx, 3, new BinaryOperatorNode(lexemes[idx + 1], lexemes[idx + 2], lexeme.subType)); // doubleprefix is really just a reorganised binary;
+        }
         else {
             throw new Errors.MathSyntaxError(`Unexpected token "${lexeme.value}"`);
         }
@@ -182,12 +184,8 @@ function parseInner(lexemes) {
     function hasHigherPrecedence(a, b) {
         // Returns whether precedence of a >= precedence of b.
         // (earlier has higher precedence so in the equal case a still has higher)
-        return precedenceOf(a) > precedenceOf(b);
-        if (a.type != b.type) {
-            return BaseOperatorPrecedence[a.type] >= BaseOperatorPrecedence[b.type];
-        }
-        else if (a.type == LexemeType.BINARY_OPERATOR) {
-            return SpecialOperatorPrecedence[a.subType] >= SpecialOperatorPrecedence[b.subType];
+        if (a.type != b.type || a.type == LexemeType.BINARY_OPERATOR) {
+            return precedenceOf(a) >= precedenceOf(b);
         }
         else if (a.type == LexemeType.PREFIX_OPERATOR) {
             return false; // latest prefix operators are executed first

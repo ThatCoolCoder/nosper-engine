@@ -3,7 +3,7 @@ import ParseContext from './ParseContext.mjs';
 import { Token, TokenType } from "./Token.mjs";
 
 const numberChars = [...spnr.str.digits, '.'];
-const symbolicOperatorChars = '+-*/^%!=<>,;'.split('');
+const symbolicOperatorChars = '+-*/^%!=<>,;@'.split('');
 const parenChars = '(){}'.split('');
 const whitespaceChars = ' '.split('');
 const functionChars = [...spnr.str.alphabet, ...spnr.str.digits, '_'];
@@ -35,9 +35,9 @@ export default function tokenise(expression) {
         else if (textStartChars.includes(ctx.crntItem)) {
             tokens.push(new Token(TokenType.TEXT, readText()));
         }
-        else if (ctx.crntItem == '@') {
-            tokens.push(new Token(TokenType.FUNCTION_CALL, readFunctionCall()));
-        }
+        // else if (ctx.crntItem == '@') {
+        //     tokens.push(new Token(TokenType.FUNCTION_CALL, readFunctionCall()));
+        // }
         else {
             throw new Error(`Unexpected character while parsing: "${ctx.crntItem}"`);
         }

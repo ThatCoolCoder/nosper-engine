@@ -6,10 +6,11 @@ import { spnr } from './lib/spnr.mjs';
 export const LexemeType = {
     BINARY_OPERATOR: 0,
     PREFIX_OPERATOR: 0,
+    DOUBLE_PREFIX_OPERATOR: 0,
     POSTFIX_OPERATOR: 0,
     TERNARY_OPERATOR: 0,
-    SEPARATOR: 0,
-    FUNCTION_CALL: 0,
+    // SEPARATOR: 0,
+    // FUNCTION_CALL: 0,
     VALUE: 0,
     ASSIGNABLE: 0,
     PAREN: 0,
@@ -30,6 +31,7 @@ export const LexemeSubType = {
     EXPONENTIATE: 0,
     ASSIGN: 0,
     EXPRESSION_GROUPING: 0, // yes, this is implemented as a binary operator. It's a little counterintuitive but it works, so why not?
+    ITEM_GROUPING: 0,
 
     // prefix operator: trig
     SINE: 0,
@@ -53,16 +55,14 @@ export const LexemeSubType = {
     FLOOR: 0,
     CEILING: 0,
 
+    // double prefix operator
+    FUNCTION_CALL: 0,
+
     // postfix operator
     FACTORIAL: 0,
 
     // ternary operator (todo: implement parse rules for him)
     TERNARY_IF_ELSE: 0,
-
-    // separator
-    COMMA: 0,
-
-    // none for function call
 
     // value
     NUMBER: 0,

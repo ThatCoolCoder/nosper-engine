@@ -19,8 +19,10 @@ const symbolicOperatorLookup = {
     
     '=' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ASSIGN],
 
-    ',' : [LexemeType.SEPARATOR, LexemeSubType.COMMA],
-    ';' : [LexemeType.BINARY_OPERATOR, LexemeSubType.EXPRESSION_GROUPING]
+    ';' : [LexemeType.BINARY_OPERATOR, LexemeSubType.EXPRESSION_GROUPING],
+    ',' : [LexemeType.BINARY_OPERATOR, LexemeSubType.ITEM_GROUPING],
+    
+    // Function call absent as we need to do a little bit of special casing
 };
 
 const textValueLookup = {
@@ -87,6 +89,17 @@ export default function lex(tokens) {
                 result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.NUMBER, ctx.crntItem.value));
                 ctx.next();
             }
+            else if (ctx.crntItem.type == TokenType.SYMBOLIC_OPERATOR && ctx.crntItem.value == '@') {
+                result.push(new Lexeme(LexemeType.DOUBLE_PREFIX_OPERATOR, LexemeSubType.FUNCTION_CALL, ctx.crntItem.value));
+                ctx.next();
+                
+                // todo: error handling, make this a sub-lexer?
+                // (we need to make this thing take the whole string, not just the 1st char)
+                // (there will need to be some shenanigans adding data types and stripping leading _ from vars before this will work)
+                result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.VARIABLE, ctx.crntItem.value));
+
+                ctx.next();
+            }
             else if (ctx.crntItem.type == TokenType.SYMBOLIC_OPERATOR) {
                 result = result.concat(lexSymbolicOperators(ctx.crntItem.value));
                 ctx.next();
@@ -98,10 +111,6 @@ export default function lex(tokens) {
             else if (ctx.crntItem.type == TokenType.PAREN) {
                 var [type, subType] = parenLookup[ctx.crntItem.value];
                 result.push(new Lexeme(type, subType, ctx.crntItem.value));
-                ctx.next();
-            }
-            else if (ctx.crntItem.type == TokenType.FUNCTION_CALL) {
-                result.push(new Lexeme(LexemeType.FUNCTION_CALL, LexemeSubType.NONE, ctx.crntItem.value));
                 ctx.next();
             }
             else {
@@ -207,10 +216,6 @@ export default function lex(tokens) {
 
         return null;
     }
-
-    function isFunctionNameValid() {
-
-    }
 }
 
 function postProcess(lexemes) {
@@ -264,27 +269,40 @@ function convertToNegations(lexemes) {
 function insertImplicitMultiplicationSigns(lexemes) {
     var result = [];
 
-    for (var i = 0; i < lexemes.length - 1; i ++)
+    var prevLexeme = null;
+    var prevPrevLexeme = null;
+
+    for (var crntLexeme of lexemes)
     {
-        var crntLexeme = lexemes[i];
-        var nextLexeme = lexemes[i + 1];
+        var prevPrevLexemeOk = false;
+        if (prevPrevLexeme != null) {
+            // Sorry it looks like we'll have to already lock in that double prefix operators have higher precedence before we even get to parisng,
+            // since otherwise this becomes insane
+            // I think here is where the starts to creep into v2, haha
+            prevPrevLexemeOk = prevPrevLexeme.type != LexemeType.DOUBLE_PREFIX_OPERATOR;
+        }
+
+        var prevLexemeOk = false;
+        if (prevLexeme != null) {
+            prevLexemeOk = prevLexeme.type == LexemeType.VALUE ||
+                prevLexeme.subType == LexemeSubType.R_PAREN ||
+                prevLexeme.type == LexemeType.POSTFIX_OPERATOR;
+        }
 
         var crntLexemeOk = crntLexeme.type == LexemeType.VALUE ||
-            crntLexeme.subType == LexemeSubType.R_PAREN ||
-            crntLexeme.type == LexemeType.POSTFIX_OPERATOR;
+            crntLexeme.subType == LexemeSubType.L_PAREN || 
+            crntLexeme.type == LexemeType.FUNCTION_CALL ||
+            crntLexeme.type == LexemeType.PREFIX_OPERATOR;
 
-        var nextLexemeOk = nextLexeme.type == LexemeType.VALUE ||
-            nextLexeme.subType == LexemeSubType.L_PAREN || 
-            nextLexeme.type == LexemeType.FUNCTION_CALL ||
-            nextLexeme.type == LexemeType.PREFIX_OPERATOR;
-
-        result.push(crntLexeme);
-        if (crntLexemeOk && nextLexemeOk)
+        if (prevPrevLexemeOk && prevLexemeOk && crntLexemeOk)
         {
             result.push(new Lexeme(LexemeType.BINARY_OPERATOR, LexemeSubType.MULTIPLY, '*'));
         }
+        result.push(crntLexeme);
+
+        prevPrevLexeme = prevLexeme;
+        prevLexeme = crntLexeme;
     }
-    result.push(lexemes[lexemes.length - 1]); // add final lexeme because we missed it in the loop
     
     return result;
 }

@@ -1,5 +1,5 @@
 import { spnr } from './lib/spnr.mjs'
-import { LexemeSubType } from "./Lexeme.mjs";
+import { Lexeme, LexemeSubType } from "./Lexeme.mjs";
 import { Scope, FunctionInfo } from './EvaluationContext.mjs';
 import { InbuiltFunctions } from './InbuiltFunctions.mjs';
 import * as Errors from './Errors.mjs';
@@ -46,6 +46,25 @@ const BinaryOperator = {
     [LexemeSubType.EXPRESSION_GROUPING]: (a, b, ctx) => {
         a.evaluate(ctx);
         return b.evaluate(ctx);
+    },
+    [LexemeSubType.ITEM_GROUPING]: (a, b, ctx) => {
+        var aValue = a.evaluate(ctx);
+        var bValue = b.evaluate(ctx);
+
+        var result = [];
+        if (aValue instanceof Array) result = result.concat(aValue);
+        else result.push(aValue);
+
+
+        if (bValue instanceof Array) result = result.concat(bValue);
+        else result.push(bValue);
+
+        return result;
+    },
+    [LexemeSubType.FUNCTION_CALL]: (a, b, ctx) => {
+        var args = b.evaluate(ctx);
+        args = args instanceof Array ? args : [args];
+        return performFunctionCall(a.value, args, ctx); 
     }
 }
 
@@ -175,47 +194,39 @@ export class FunctionHeaderNode extends SyntaxTreeNode {
     }
 }
 
-export class FunctionCallNode extends SyntaxTreeNode {
-    constructor(name, args) {
-        super();
-        this.name = name;
-        this.args = args;
+function performFunctionCall(funcName, args, context) {
+    if (context.isFunctionDefined(funcName)) {
+        var scope = new Scope();
+        var functionInfo = context.getFunctionFromStack(funcName);
+
+        if (args.length > functionInfo.argumentNames.length) throw new Errors.UnexpectedArgumentError(funcName, functionInfo.argumentNames.length, args.length);
+        if (args.length < functionInfo.argumentNames.length) throw new Errors.ArgumentMissingError(funcName, functionInfo.argumentNames, args.length);
+
+        args.forEach((arg, idx) => scope.variables.set(functionInfo.argumentNames[idx], arg));
+        context.scopeStack.push(scope);
+
+        var result = functionInfo.definition.evaluate(context);
+        
+        context.scopeStack.pop();
+        return result;
     }
+    else if (funcName in InbuiltFunctions) {
+        var func = InbuiltFunctions[funcName];
 
-    evaluate(context) {
-        if (context.isFunctionDefined(this.name)) {
-            var scope = new Scope();
-            var functionInfo = context.getFunctionFromStack(this.name);
-
-            if (this.args.length > functionInfo.argumentNames.length) throw new Errors.UnexpectedArgumentError(this.name, functionInfo.argumentNames.length, this.args.length);
-            if (this.args.length < functionInfo.argumentNames.length) throw new Errors.ArgumentMissingError(this.name, functionInfo.argumentNames, this.args.length);
-
-            this.args.forEach((arg, idx) => scope.variables.set(functionInfo.argumentNames[idx], arg.evaluate(context)));
-            context.scopeStack.push(scope);
-
-            var result = functionInfo.definition.evaluate(context);
-            
-            context.scopeStack.pop();
-            return result;
-        }
-        else if (this.name in InbuiltFunctions) {
-            var func = InbuiltFunctions[this.name];
-
-            // Always check for too few
-            if (this.args.length < func.nArgs) throw new Errors.InbuiltArgumentMissingError(this.name, func.nArgs, this.args.length);
-            
-            if (func.variadic) {
-                return func.definition(context, this.args);
-            }
-            else {
-                // Only check for too many if not variadic
-                if (this.args.length > func.nArgs) throw new Errors.UnexpectedArgumentError(this.name, func.nArgs, this.args.length);
-                return func.definition(context, ...this.args);
-            }
-
+        // Always check for too few
+        if (args.length < func.nArgs) throw new Errors.InbuiltArgumentMissingError(funcName, func.nArgs, args.length);
+        
+        if (func.variadic) {
+            return func.definition(context, args);
         }
         else {
-            throw new Errors.UndefinedFunctionError(this.name, context.isVariableDefined(this.name));
+            // Only check for too many if not variadic
+            if (args.length > func.nArgs) throw new Errors.UnexpectedArgumentError(funcName, func.nArgs, args.length);
+            return func.definition(context, ...args);
         }
+
+    }
+    else {
+        throw new Errors.UndefinedFunctionError(funcName, context.isVariableDefined(funcName));
     }
 }

@@ -3,7 +3,7 @@
 // (yes I know since these are hard-coded we could know them at compile time and not need a prefix but that's requires effort
 // and also it might break if someone tries loading an old syntax tree into a new engine version)
 
-import { FunctionCallNode, ValueNode } from "./SyntaxTreeNodes.mjs";
+import { ValueNode } from "./SyntaxTreeNodes.mjs";
 import { LexemeSubType } from "./Lexeme.mjs";
 import * as Errors from "./Errors.mjs";
 
@@ -39,9 +39,9 @@ export const InbuiltFunctions = {
     // Can't use underscore. Unless we strip underscore from start when storing it and just use it as a parsing indicator. aaaaaa
     // Wait it's already a parsing indicator, we'd just need to consistently strip it from start
 
-    'call': { variadic: true, nArgs: 1, definition: (ctx, args) => {
-        // Lazy way to reuse functionality of function call
-        var n = new FunctionCallNode(args[0], args.slice(1));
-        return n.evaluate(ctx);
-    }},
+    // 'call': { variadic: true, nArgs: 1, definition: (ctx, args) => {
+    //     // Lazy way to reuse functionality of function call
+    //     var n = new FunctionCallNode(args[0], args.slice(1));
+    //     return n.evaluate(ctx);
+    // }},
 }
