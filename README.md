@@ -57,15 +57,15 @@ This project uses a rolling release system, where stable versions can be obtaine
         - and then inevitably people (i.e me) will want set deconstruction, intersection, union etc. Which sounds like excessive scope for simply allowing lambdas
         - ok maybe this idea is for v3
 - conditions
-    - for now can be implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
-    - ternary will be specified to be short circuiting so that we can use it for both 
+    - for now is implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
+    - ternary will be specified to be short circuiting so that we can use it for both conditional "flow" and selecting values
 - add logical operators
-    - |, ^, &, ~ are free in the syntax
+    - |, ^, &, ~ are all free in the syntax
     - should we have a separate bool type or just do it c-style
 - immutable values for inbuilt stuff
     - make loaded loadables immutable?
     - requires attaching payload to values
-- data types?
+- strict data typing?
     - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
 - distinction between expressions and statement?
     - requires moderate reworking as we have to give 
@@ -73,7 +73,7 @@ This project uses a rolling release system, where stable versions can be obtaine
 
 ## Creating loadables
 
-Loadables are just dictionaries of data (no class is needed). Below is the structure required:
+Loadables are just dictionaries of data (no class is needed - this means loadables can be provided by libraries without requiring those libraries to have any deps). Below is the structure required:
 ```js
 const myLoadable = {
     name: 'My amazing loadable',
@@ -87,7 +87,6 @@ const myLoadable = {
         //      def calculate_acceleration(f, m) = f * m
         'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m' } 
     }
-    // todo: finish writing this
 }
 ``` 
 
