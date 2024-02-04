@@ -1,5 +1,5 @@
 import { spnr } from './lib/spnr.mjs'
-import { Types, makeNumber, makeList, safelyGetValue } from './Types.mjs';
+import { Types, makeScalar, makeList, safelyGetValue } from './Types.mjs';
 import { Lexeme, LexemeSubType } from "./Lexeme.mjs";
 import { Scope, FunctionInfo } from './EvaluationContext.mjs';
 import { InbuiltFunctions } from './InbuiltFunctions.mjs';
@@ -8,41 +8,41 @@ import * as Errors from './Errors.mjs';
 const BinaryOperator = {
     // Traditional operators
     [LexemeSubType.ADD]: (a, b, ctx) => {
-        return makeNumber(
-            safelyGetValue(a.evaluate(ctx), Types.NUMBER) +
-            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+        return makeScalar(
+            safelyGetValue(a.evaluate(ctx), Types.SCALAR) +
+            safelyGetValue(b.evaluate(ctx), Types.SCALAR));
     },
     [LexemeSubType.SUBTRACT]: (a, b, ctx) => {
-        return makeNumber(
-            safelyGetValue(a.evaluate(ctx), Types.NUMBER) -
-            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+        return makeScalar(
+            safelyGetValue(a.evaluate(ctx), Types.SCALAR) -
+            safelyGetValue(b.evaluate(ctx), Types.SCALAR));
     },
     [LexemeSubType.MULTIPLY]: (a, b, ctx) => {
-        return makeNumber(
-            safelyGetValue(a.evaluate(ctx), Types.NUMBER) *
-            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+        return makeScalar(
+            safelyGetValue(a.evaluate(ctx), Types.SCALAR) *
+            safelyGetValue(b.evaluate(ctx), Types.SCALAR));
     },
     [LexemeSubType.DIVIDE]: (a, b, ctx) => {
-        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.SCALAR);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
 
-        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) / bValue);
+        return makeScalar(safelyGetValue(a.evaluate(ctx), Types.SCALAR) / bValue);
     },
     [LexemeSubType.DIVIDE_LOW_PRECEDENCE]: (a, b, ctx) => {
-        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.SCALAR);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
-        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) / bValue);
+        return makeScalar(safelyGetValue(a.evaluate(ctx), Types.SCALAR) / bValue);
     },
     [LexemeSubType.MODULO]: (a, b, ctx) => {
-        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.SCALAR);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot modulo by 0');
-        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) % bValue);
+        return makeScalar(safelyGetValue(a.evaluate(ctx), Types.SCALAR) % bValue);
     },
     [LexemeSubType.EXPONENTIATE]: (a, b, ctx) => {
-        var aValue = safelyGetValue(a.evaluate(ctx), Types.NUMBER);
-        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
+        var aValue = safelyGetValue(a.evaluate(ctx), Types.SCALAR);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.SCALAR);
         if (aValue == 0 && bValue == 0) throw new Errors.MathDomainError('0 to the power of 0 is undefined');
-        return makeNumber(aValue ** bValue);
+        return makeScalar(aValue ** bValue);
     },
 
     [LexemeSubType.ASSIGN]: (a, b, ctx) => {
@@ -53,7 +53,7 @@ const BinaryOperator = {
         }
         else if (a instanceof FunctionHeaderNode) {
             ctx.topScope.variables.set(a.name, { type: Types.FUNCTION, value: new FunctionInfo(a.argNames, b) });
-            return makeNumber(0);
+            return makeScalar(0);
         }
         else {
             throw new Errors.MathSyntaxError(`Cannot assign to a value of type ${a.constructor.name}`);
@@ -143,7 +143,7 @@ const UnaryOperator = {
 }
 
 function dumbUnaryOperator(a, ctx, operator) {
-    return makeNumber(operator(safelyGetValue(a.evaluate(ctx), Types.NUMBER)));
+    return makeScalar(operator(safelyGetValue(a.evaluate(ctx), Types.SCALAR)));
 }
 
 function convertToRadians(angle, isRadians) {
@@ -172,7 +172,7 @@ export class ValueNode extends SyntaxTreeNode {
 
     evaluate(context) {
         if (this.subType == LexemeSubType.NUMBER) {
-            return { type: Types.NUMBER, value: this.value };
+            return { type: Types.SCALAR, value: this.value };
         }
         else if (this.subType == LexemeSubType.VARIABLE) {
             var foundVar = context.getVariableFromStack(this.value);

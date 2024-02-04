@@ -5,13 +5,13 @@ import * as Errors from "./Errors.mjs";
 // var/value initially seems promising but not all type-associated-values are vars
 
 export const Types = {
-    NUMBER: 0,
+    SCALAR: 0,
     FUNCTION: 0,
     LIST: 0,
 };
 
-export function makeNumber(value) {
-    return { type: Types.NUMBER, value };
+export function makeScalar(value) {
+    return { type: Types.SCALAR, value };
 }
 
 export function makeList(value) {

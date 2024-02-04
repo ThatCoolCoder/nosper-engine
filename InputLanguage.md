@@ -88,9 +88,9 @@ Functions can call other functions. Each call has its own scope, so arguments pa
 
 There are currently three data types, although more will likely be added in future. Attempting to perform operations on invalid types will result in an `Errors.TypeError`. These types are exported as `Types` by `Types.mjs`.
 
-### Number
+### Scalar
 
-Just a number. Can do arithmetic on it. Currently it's a floating point number, in future this might change to being some sort of decimal or fractional representation.
+Just an ordinary number. Can do arithmetic on it. Currently it's a floating point number, in future this might change to being some sort of decimal or fractional representation.
 
 ### List
 

@@ -12,7 +12,7 @@ import { Types, safelyGetValue } from "./Types.mjs";
 // If variadic is true, nArgs is only a minimum (if absent, min is zero), and args are passed as an array as the second argument
 
 export const InbuiltFunctions = {
-    'ifelse': { nArgs: 3, definition: (_ctx, cond, a, b) => safelyGetValue(cond, Types.NUMBER) ? a : b },
+    'ifelse': { nArgs: 3, definition: (_ctx, cond, a, b) => safelyGetValue(cond, Types.SCALAR) ? a : b },
     // Todo: could add loops here if we had lambdas or blocks/multiple statements (as a loop isn't very useful without being able to have multiple lines occur)
 
     'del_var': { nArgs: 1, definition: (ctx, rhs) => {

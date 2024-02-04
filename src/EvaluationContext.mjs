@@ -1,5 +1,5 @@
 import { spnr } from './lib/spnr.mjs';
-import { makeNumber } from './Types.mjs';
+import { makeScalar } from './Types.mjs';
 
 export class EvaluationContext {
     constructor(variables=new ValueGroup()) {
@@ -132,11 +132,11 @@ export class ValueGroup {
 }
 
 const baseConstants = new ValueGroup({
-    pi: makeNumber(spnr.PI),
-    tau: makeNumber(spnr.PI * 2),
-    e: makeNumber(spnr.E),
-    phi: makeNumber((1 + spnr.sqrt(5)) / 2), // (aka the golden ratio)
-    silv: makeNumber(spnr.SQRT2 + 1)
+    pi: makeScalar(spnr.PI),
+    tau: makeScalar(spnr.PI * 2),
+    e: makeScalar(spnr.E),
+    phi: makeScalar((1 + spnr.sqrt(5)) / 2), // (aka the golden ratio)
+    silv: makeScalar(spnr.SQRT2 + 1)
 });
 
 export class FunctionInfo {
