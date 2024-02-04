@@ -80,11 +80,29 @@ am_cow b            a * m_cow * b
 
 Custom functions can be defined like `def multiply_numbers(a, b) = a * b`, then called like `@multiply_numbers(2, 3)`. Any expression can be given to a function as an argument, so `@multiply_numbers(1 + 2, m_cow)` or even `@multiply_numbers(@multiply_numbers(2, 3), 3)` are also valid expressions. To create a function with no arguments just do `def myfunc() = a + 2` - this example utilises a global variable instead of having a value passed in. Note that it's not possible to mutate a global variable from within a function, assignment of a variable always assigns to the current scope.
 
+Single-argument functions can be called without parenthesis (the @ sign is actually the operator that signifies invocation), eg `@double 2`.
+
 Functions can call other functions. Each call has its own scope, so arguments passed to it and variables defined inside do not leak out. Multiple-expression functions can be created using parentheses and `;`, eg `def f(a, b) = (_intermediate = a * b; _intermediate + 1)`. (the parentheses are required as `;` otherwise has lower precedence than `=`)
+
+### Data types
+
+There are currently three data types, although more will likely be added in future. Attempting to perform operations on invalid types will result in an `Errors.TypeError`. These types are exported as `Types` by `Types.mjs`.
+
+### Number
+
+Just a number. Can do arithmetic on it. Currently it's a floating point number, in future this might change to being some sort of decimal or fractional representation.
+
+### List
+
+Lists are collections of other values, which do not all need to be of the same type. They are created by the comma operator, and normally surrounded by brackets to ensure correct precedence. Eg `a = (1, 2)`. Lists are currently quite messy and limited, eg at this stage it's not possible to call a function with a list as an argument due to functions unpacking a list that they receive into multiple arguments.
+
+### Function
+
+Functions are just another variable type in nosper - `def` sets a variable to the function value, and the `@` symbol is actually an operator that invokes the function. This means that you can alias functions just by assigning variables, so `def myfunc(a, b) = a + b; _alias = _myfunc; @alias(2, 3)` evaluates to 5. Observe that leading underscores are required when using multi-letter functions as variables. As `def` and `@` are the most common ways to interact with functions, these automatically recognise multi-letter functions and add the leading underscore, however it's not possible for this detection to work when using variables.
 
 #### Unassigning
 
-Variables can be deleted using `@del_var` (see below). There's currently no way to unassign a function - make a github issue if you want this functionality.
+There's currently no way to unassign variables - make a github issue if you want this functionality.
 
 ## Reference
 
@@ -136,7 +154,6 @@ Prefix (goes before the value, shown with example values)
         Round down/floor        floor 1.9
         Round up/ceiling        ceil 2.1
 
-
 Postfix (goes after the value, shown with example usage)
     Factorial   4!
 ```
@@ -148,7 +165,4 @@ For some niche tasks that are not important enough to give dedicated syntax, inb
 ```
 @ifelse(_condition, _trueVal, _falseVal)
     If the value of _condition is zero, it will evaluate to _falseVal, otherwise _trueVal. Short circuiting.
-
-@del_var(_var_name)
-    If the variable exists, it is deleted from the innermost scope where it is defined, otherwise it gives an error
 ```

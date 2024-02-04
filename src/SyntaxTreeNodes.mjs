@@ -1,48 +1,66 @@
 import { spnr } from './lib/spnr.mjs'
+import { Types, makeNumber, makeList, safelyGetValue } from './Types.mjs';
 import { Lexeme, LexemeSubType } from "./Lexeme.mjs";
 import { Scope, FunctionInfo } from './EvaluationContext.mjs';
 import { InbuiltFunctions } from './InbuiltFunctions.mjs';
 import * as Errors from './Errors.mjs';
 
 const BinaryOperator = {
-    [LexemeSubType.ADD]: (a, b, ctx) => a.evaluate(ctx) + b.evaluate(ctx),
-    [LexemeSubType.SUBTRACT]: (a, b, ctx) => a.evaluate(ctx) - b.evaluate(ctx),
-    [LexemeSubType.MULTIPLY]: (a, b, ctx) => a.evaluate(ctx) * b.evaluate(ctx),
+    // Traditional operators
+    [LexemeSubType.ADD]: (a, b, ctx) => {
+        return makeNumber(
+            safelyGetValue(a.evaluate(ctx), Types.NUMBER) +
+            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+    },
+    [LexemeSubType.SUBTRACT]: (a, b, ctx) => {
+        return makeNumber(
+            safelyGetValue(a.evaluate(ctx), Types.NUMBER) -
+            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+    },
+    [LexemeSubType.MULTIPLY]: (a, b, ctx) => {
+        return makeNumber(
+            safelyGetValue(a.evaluate(ctx), Types.NUMBER) *
+            safelyGetValue(b.evaluate(ctx), Types.NUMBER));
+    },
     [LexemeSubType.DIVIDE]: (a, b, ctx) => {
-        var bValue = b.evaluate(ctx);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
-        return a.evaluate(ctx) / bValue;
+
+        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) / bValue);
     },
     [LexemeSubType.DIVIDE_LOW_PRECEDENCE]: (a, b, ctx) => {
-        var bValue = b.evaluate(ctx);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot divide by 0');
-        return a.evaluate(ctx) / bValue;
+        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) / bValue);
     },
     [LexemeSubType.MODULO]: (a, b, ctx) => {
-        var bValue = b.evaluate(ctx);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
         if (bValue == 0) throw new Errors.MathDomainError('Cannot modulo by 0');
-        return a.evaluate(ctx) % bValue;
+        return makeNumber(safelyGetValue(a.evaluate(ctx), Types.NUMBER) % bValue);
     },
     [LexemeSubType.EXPONENTIATE]: (a, b, ctx) => {
-        var aValue = a.evaluate(ctx);
-        var bValue = b.evaluate(ctx);
+        var aValue = safelyGetValue(a.evaluate(ctx), Types.NUMBER);
+        var bValue = safelyGetValue(b.evaluate(ctx), Types.NUMBER);
         if (aValue == 0 && bValue == 0) throw new Errors.MathDomainError('0 to the power of 0 is undefined');
-        return aValue ** bValue;
+        return makeNumber(aValue ** bValue);
     },
+
     [LexemeSubType.ASSIGN]: (a, b, ctx) => {
         if (a instanceof AssignableNode) {
-            var bValue = b.evaluate(ctx);
-            ctx.topScope.variables.set(a.value, bValue);
-            return bValue;
+            var bVar = b.evaluate(ctx);
+            ctx.topScope.variables.set(a.value, bVar);
+            return bVar;
         }
         else if (a instanceof FunctionHeaderNode) {
-            ctx.topScope.functions.set(a.name, new FunctionInfo(a.name, a.argNames, b));
-            return 0;
+            ctx.topScope.variables.set(a.name, { type: Types.FUNCTION, value: new FunctionInfo(a.argNames, b) });
+            return makeNumber(0);
         }
         else {
             throw new Errors.MathSyntaxError(`Cannot assign to a value of type ${a.constructor.name}`);
         }
     },
+
+    // Structural operators
     [LexemeSubType.EXPRESSION_GROUPING]: (a, b, ctx) => {
         a.evaluate(ctx);
         return b.evaluate(ctx);
@@ -52,61 +70,80 @@ const BinaryOperator = {
         var bValue = b.evaluate(ctx);
 
         var result = [];
-        if (aValue instanceof Array) result = result.concat(aValue);
+        if (aValue.type == Types.LIST) result = result.concat(aValue.value);
         else result.push(aValue);
 
-
-        if (bValue instanceof Array) result = result.concat(bValue);
+        if (bValue.type == Types.LIST) result = result.concat(bValue.value);
         else result.push(bValue);
 
-        return result;
+        return makeList(result);
     },
     [LexemeSubType.FUNCTION_CALL]: (a, b, ctx) => {
         var args = b.evaluate(ctx);
-        args = args instanceof Array ? args : [args];
-        return performFunctionCall(a.value, args, ctx); 
+        var trueArgs = args.type == Types.LIST ? args.value : [args];
+        return performFunctionCall(a.value, trueArgs, ctx); 
     }
 }
 
 const UnaryOperator = {
     // Prefix trig:
-    [LexemeSubType.SINE]: (a, ctx) => Math.sin(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
-    [LexemeSubType.ARC_SINE]: (a, ctx) => convertFromRadians(Math.asin(a.evaluate(ctx)), ctx.useRadians),
-    [LexemeSubType.COSECANT]: (a, ctx) => 1 / Math.sin(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
-    [LexemeSubType.COSINE]: (a, ctx) => Math.cos(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
-    [LexemeSubType.ARC_COSINE]: (a, ctx) => convertFromRadians(Math.acos(a.evaluate(ctx)), ctx.useRadians),
-    [LexemeSubType.SECANT]: (a, ctx) => 1 / Math.cos(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
-    [LexemeSubType.TANGENT]: (a, ctx) => Math.tan(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
-    [LexemeSubType.ARC_TANGENT]: (a, ctx) => convertFromRadians(Math.atan(a.evaluate(ctx)), ctx.useRadians),
-    [LexemeSubType.COTANGENT]: (a, ctx) => 1 / Math.tan(convertToRadians(a.evaluate(ctx), ctx.useRadians)),
+    [LexemeSubType.SINE]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => Math.sin(convertToRadians(val, ctx.useRadians))),
+
+    [LexemeSubType.ARC_SINE]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => convertFromRadians(Math.asin(val), ctx.useRadians)),
+
+    [LexemeSubType.COSECANT]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => 1 / Math.sin(convertToRadians(val, ctx.useRadians))),
+
+    [LexemeSubType.COSINE]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => Math.cos(convertToRadians(val, ctx.useRadians))),
+
+    [LexemeSubType.ARC_COSINE]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => convertFromRadians(Math.acos(val), ctx.useRadians)),
+
+    [LexemeSubType.SECANT]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => 1 / Math.cos(convertToRadians(val, ctx.useRadians))),
+
+    [LexemeSubType.TANGENT]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => Math.tan(convertToRadians(val, ctx.useRadians))),
+
+    [LexemeSubType.ARC_TANGENT]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => convertFromRadians(Math.atan(val), ctx.useRadians)),
+
+    [LexemeSubType.COTANGENT]: (a, ctx) => dumbUnaryOperator(a, ctx,
+        val => 1 / Math.tan(convertToRadians(val, ctx.useRadians))),
+
     
     // Prefix not trig
-    [LexemeSubType.NEGATE]: (a, ctx) => -a.evaluate(ctx),
-    [LexemeSubType.SQUARE_ROOT]: (a, ctx) => {
-        var aValue = a.evaluate(ctx);
-        if (aValue < 0) throw new Errors.MathDomainError('Attempted to find square root of negative number; this calculator does not support computation of imaginary numbers');
-        return Math.sqrt(aValue);
-    },
-    [LexemeSubType.CUBE_ROOT]: (a, ctx) => Math.cbrt(a.evaluate(ctx)),
-    [LexemeSubType.ABSOLUTE_VALUE]: (a, ctx) => Math.abs(a.evaluate(ctx)),
-    [LexemeSubType.LOGARITHM]: (a, ctx) => Math.log10(a.evaluate(ctx)),
-    [LexemeSubType.NATURAL_LOGARITHM]: (a, ctx) => Math.log(a.evaluate(ctx)),
-    [LexemeSubType.ROUND]: (a, ctx) => Math.round(a.evaluate(ctx)),
-    [LexemeSubType.FLOOR]: (a, ctx) => Math.floor(a.evaluate(ctx)),
-    [LexemeSubType.CEILING]: (a, ctx) => Math.ceil(a.evaluate(ctx)),
+    [LexemeSubType.NEGATE]: (a, ctx) => dumbUnaryOperator(a, ctx, val => -val),
+    [LexemeSubType.SQUARE_ROOT]: (a, ctx) => dumbUnaryOperator(a, ctx, val => {
+        if (val < 0) throw new Errors.MathDomainError('Attempted to find square root of negative number; this calculator does not support computation of imaginary numbers');
+        return Math.sqrt(val);
+    }),
+    [LexemeSubType.CUBE_ROOT]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.cbrt(val)),
+    [LexemeSubType.ABSOLUTE_VALUE]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.abs(val)),
+    [LexemeSubType.LOGARITHM]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.log10(val)),
+    [LexemeSubType.NATURAL_LOGARITHM]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.log(val)),
+    [LexemeSubType.ROUND]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.round(val)),
+    [LexemeSubType.FLOOR]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.floor(val)),
+    [LexemeSubType.CEILING]: (a, ctx) => dumbUnaryOperator(a, ctx, val => Math.ceil(val)),
 
     // Postfix
-    [LexemeSubType.FACTORIAL] : (a, ctx) => {
-        var aValue = a.evaluate(ctx);
-        if (aValue < 0) throw new Errors.MathDomainError('Factorial function is undefined for negative numbers');
-        if (aValue % 1 != 0) throw new Errors.MathDomainError('Factorial function is not supported on decimal values');
+    [LexemeSubType.FACTORIAL] : (a, ctx) => dumbUnaryOperator(a, ctx, val => {
+        if (val < 0) throw new Errors.MathDomainError('Factorial function is undefined for negative numbers');
+        if (val % 1 != 0) throw new Errors.MathDomainError('Factorial function is not supported on decimal values');
 
         var total = 1;
-        for (var i = 2; i <= aValue; i ++) {
+        for (var i = 2; i <= val; i ++) {
             total *= i;
         }
         return total;
-    }
+    })
+}
+
+function dumbUnaryOperator(a, ctx, operator) {
+    return makeNumber(operator(safelyGetValue(a.evaluate(ctx), Types.NUMBER)));
 }
 
 function convertToRadians(angle, isRadians) {
@@ -135,14 +172,14 @@ export class ValueNode extends SyntaxTreeNode {
 
     evaluate(context) {
         if (this.subType == LexemeSubType.NUMBER) {
-            return this.value;
+            return { type: Types.NUMBER, value: this.value };
         }
         else if (this.subType == LexemeSubType.VARIABLE) {
-            var value = context.getVariableFromStack(this.value);
+            var foundVar = context.getVariableFromStack(this.value);
 
-            if (value == null) throw new Errors.UndefinedVariableError(this.value, context.isFunctionDefined(value));
+            if (foundVar == null) throw new Errors.UndefinedVariableError(this.value);
 
-            return value;
+            return foundVar;
         }
         else if (this.subType == LexemeSubType.PREVIOUS_ANSWER) {
             return context.previousAnswer;
@@ -195,9 +232,9 @@ export class FunctionHeaderNode extends SyntaxTreeNode {
 }
 
 function performFunctionCall(funcName, args, context) {
-    if (context.isFunctionDefined(funcName)) {
+    if (context.isVariableDefined(funcName)) {
         var scope = new Scope();
-        var functionInfo = context.getFunctionFromStack(funcName);
+        var functionInfo = safelyGetValue(context.getVariableFromStack(funcName), Types.FUNCTION);
 
         if (args.length > functionInfo.argumentNames.length) throw new Errors.UnexpectedArgumentError(funcName, functionInfo.argumentNames.length, args.length);
         if (args.length < functionInfo.argumentNames.length) throw new Errors.ArgumentMissingError(funcName, functionInfo.argumentNames, args.length);
@@ -227,6 +264,6 @@ function performFunctionCall(funcName, args, context) {
 
     }
     else {
-        throw new Errors.UndefinedFunctionError(funcName, context.isVariableDefined(funcName));
+        throw new Errors.UndefinedFunctionError(funcName);
     }
 }

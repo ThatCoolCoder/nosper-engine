@@ -1,9 +1,10 @@
 import { spnr } from './lib/spnr.mjs';
+import { makeNumber } from './Types.mjs';
 
 export class EvaluationContext {
-    constructor(variables=new ValueGroup(), functions=new ValueGroup()) {
+    constructor(variables=new ValueGroup()) {
         this.useRadians = true;
-        this.scopeStack = [new Scope(variables, functions)];
+        this.scopeStack = [new Scope(variables)];
         this.previousAnswer = 0;
     }
 
@@ -17,10 +18,6 @@ export class EvaluationContext {
 
     getVariableFromStack(variableName) {
         return this._getValueFromStack(variableName, s => s.variables);
-    }
-
-    getFunctionFromStack(functionName) {
-        return this._getValueFromStack(functionName, s => s.functions);
     }
 
     _getValueFromStack(itemName, scopeToItem) {
@@ -39,10 +36,6 @@ export class EvaluationContext {
         return this._valueDefinedOnStack(variableName, s => s.variables);
     }
 
-    isFunctionDefined(functionName) {
-        return this._valueDefinedOnStack(functionName, s => s.functions);
-    }
-
     _valueDefinedOnStack(itemName, scopeToItem) {
         // Like _getValueFromStack but checks if it is defined on any of the levels
         return this.scopeStack.some(s => scopeToItem(s).isDefined(itemName));
@@ -57,7 +50,7 @@ export class EvaluationContext {
             // Yes injection is possible. No I don't care as you are running someone's code by using a loadable anyway
             var joinedArgs = loadable.functions[funcName].args.join(', ');
             var combined = `def ${funcName}(${joinedArgs}) = ${loadable.functions[funcName].body}`;
-            evaluator.evaluate(combined, false, this);
+            evaluator.evaluate(combined, false, this); // might as well just use the pre-existing function def code
         }
     }
 
@@ -67,7 +60,7 @@ export class EvaluationContext {
         }
 
         for (var funcName in loadable.functions) {
-            this.rootScope.functions.delete(funcName);
+            this.rootScope.variables.delete(funcName);
         }
     }
 
@@ -88,13 +81,10 @@ EvaluationContext.load = function(dump) {
 }
 
 export class Scope {
-    constructor(variablesValueGroup=null, functionsValueGroup=null, includeBaseConstants=true) {
+    constructor(variablesValueGroup=null, includeBaseConstants=true) {
         this.variables = new ValueGroup();
         if (includeBaseConstants) this.variables.appendGroup(baseConstants);
         if (variablesValueGroup != null) this.variables.appendGroup(variablesValueGroup);
-
-        this.functions = new ValueGroup();
-        if (functionsValueGroup != null) this.functions.appendGroup(functionsValueGroup);
     }
 }
 
@@ -142,16 +132,15 @@ export class ValueGroup {
 }
 
 const baseConstants = new ValueGroup({
-    pi: spnr.PI,
-    tau: spnr.PI * 2,
-    e: spnr.E,
-    phi: (1 + spnr.sqrt(5)) / 2, // (aka the golden ratio)
-    silv: spnr.SQRT2 + 1
+    pi: makeNumber(spnr.PI),
+    tau: makeNumber(spnr.PI * 2),
+    e: makeNumber(spnr.E),
+    phi: makeNumber((1 + spnr.sqrt(5)) / 2), // (aka the golden ratio)
+    silv: makeNumber(spnr.SQRT2 + 1)
 });
 
 export class FunctionInfo {
-    constructor(name, argumentNames, definition) {
-        this.name = name;
+    constructor(argumentNames, definition) {
         this.argumentNames = argumentNames;
         this.definition = definition;
     }

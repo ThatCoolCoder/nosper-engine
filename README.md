@@ -13,7 +13,7 @@ We use ES6 modules so import it as so: (it's the same for browser and node)
 ```javascript
 import { Evaluator } from 'path/to/nosper-engine/src/Evaluator.mjs';
 var evaluator = new Evaluator();
-console.log(evaluator.evaluate('5 * 2')); // will print 10
+console.log(evaluator.evaluate('5 * 2')); // will print { type: "NUMBER", value: 10 }
 ```
 
 `Evaluator.evaluate()` and related functions may throw an `Errors.EvaluationError`. See `src/Errors.mjs` for list of all derived errors, if you wish to handle them separately. Note that new derived errors may be created without bumping the version.
@@ -101,3 +101,5 @@ The parser (`parse.mjs`, another set of nested functions) converts these lexemes
 The evaluator (`Evaluator.mjs`, an actual class) doesn't do much. It only manages the other components, handles loadables, and keeps track of the evaluation context. Its purpose is to provide a simple interface to consumers.
 
 An `EvaluationContext` allows for easy storage of information between (and during) evaluations. It's passed around when executing the syntax tree, for instance. Among other things, it defines an array of scopes (which each contain functions and variables), which act to provide local/global variables to functions. Things at the end of the array (aka top of the stack) pertain to the most local function. Base constants are also defined through the default scope. Scopes are managed by function call nodes.
+
+For reasons, a leading underscore will be stripped from variables behind the scenes (specifically, during the lexing stage). This is applied to both variable assignment and use, so it's completely transparent to the user. This then allows the `def` and `@` syntax to work without leading underscores, and without them having to do complex thinking about stripping leading underscores (the reason we're able to get away with no leading underscore to signify multi-char is that unlike variables, there is already a special signifying token)

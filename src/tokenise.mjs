@@ -5,7 +5,7 @@ import { Token, TokenType } from "./Token.mjs";
 const numberChars = [...spnr.str.digits, '.'];
 const symbolicOperatorChars = '+-*/^%!=<>,;@'.split('');
 const parenChars = '(){}'.split('');
-const whitespaceChars = ' '.split('');
+const whitespaceChars = ' \n\r'.split('');
 const functionChars = [...spnr.str.alphabet, ...spnr.str.digits, '_'];
 
 const textStartChars = [...spnr.str.alphabet, '_'];

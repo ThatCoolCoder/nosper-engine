@@ -4,7 +4,14 @@ import * as readline from 'readline';
 import { Evaluator } from '../src/Evaluator.mjs';
 import * as Errors from '../src/Errors.mjs';
 
+var prelude = `
+def double(a) = 2a;
+def add(a, b) = a + b
+`;
+
 var evaluator = new Evaluator();
+
+evaluator.evaluate(prelude);
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -15,7 +22,7 @@ const rl = readline.createInterface({
 function mainLoop() {
     rl.question('Enter equation: ', expression => {
         try {
-            console.log(evaluator.evaluate(expression, true));
+            console.log(evaluator.evaluate(expression, true).value);
         }
         catch (e) {
             console.log(e);

@@ -31,9 +31,10 @@ export class Evaluator {
             else throw new MathSyntaxError();
         }
     }
-
+    
     evaluateCompiledExpression(compiledExpression, debugMode=false, context=this.context) {
         try {
+            if (debugMode) console.log('Stack:', context.topScope.variables);
             return compiledExpression.evaluate(context);
         }
         catch (e) {

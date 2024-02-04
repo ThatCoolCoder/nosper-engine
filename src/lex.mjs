@@ -186,6 +186,7 @@ export default function lex(tokens) {
                 if (ctx.crntItem == '_' || varName == '_') {
                     // If is multi-letter, take all the text
                     varName += ctx.remaining;
+                    if (varName.startsWith('_')) varName = varName.slice(1);
                     result.push(new Lexeme(LexemeType.VALUE, LexemeSubType.VARIABLE, varName));
                     break;
                 }
@@ -274,7 +275,7 @@ function insertImplicitMultiplicationSigns(lexemes) {
 
     for (var crntLexeme of lexemes)
     {
-        var prevPrevLexemeOk = false;
+        var prevPrevLexemeOk = true;
         if (prevPrevLexeme != null) {
             // Sorry it looks like we'll have to already lock in that double prefix operators have higher precedence before we even get to parisng,
             // since otherwise this becomes insane

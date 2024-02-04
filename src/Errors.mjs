@@ -56,14 +56,18 @@ export class ArgumentMissingError extends EvaluationError {
 
 export class InbuiltArgumentMissingError extends EvaluationError {
     constructor(functionName, expectedCount, providedCount) {
-        var missing = expectedArgs.concat([])
-        missing.splice(0, providedCount);
-        super(`Missing ${providedCount - expectedCount} in call to function "${functionName}"`);
+        super(`Missing ${providedCount - expectedCount} arguments in call to function "${functionName}"`);
     }
 }
 
 export class UnexpectedArgumentError extends EvaluationError {
     constructor(functionName, expectedCount, providedCount) {
         super(`${providedCount - expectedCount} unexpected argument(s) in call to function "${functionName}"`);
+    }
+}
+
+export class TypeError extends EvaluationError {
+    constructor() {
+        super(`TypeError - todo: give more details here`);
     }
 }
