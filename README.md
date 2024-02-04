@@ -60,19 +60,8 @@ This project uses a rolling release system, where stable versions can be obtaine
 (Maintainers: please update this doc when creating a new release branch)
 
 ## Future plans:
-- lambdas/anonymous functions. 
-    - probably not that hard to do with current syntax, just need to make an inline function lexer+parser
-    - difficulty will be that it requires data types (or we could just duck-type), and requires elegant syntax for calling the value of a variable (so in other words a level of indirection similar to pointers)
-        - perhaps we can prohibit variables and functions from having the same name and thus the function call operator will call the value of a variable
-            - store in dict of { type: 'scalar', value: 42 } to prevent overlap? or manual checking between 2 dicts is neater and more robust?
-- ? make current function def system just syntactic sugar. We only have variables, the @ becomes a ~~prefix~~ double prefix(?) operator that invokes the value of the variable after it
-    - if following item is not invokable then compile or runtime error
-    - compile error if is a literal or something ridiculous
-    - will remove special-case parsing
-        - actually it won't as now we still need to treat multi-letter function names correctly when they're being called, and sugar-assigned functions will not be passable unless we allow prefixing with an underscore or something
-    - also means that we will now need a set data type to be constructable so that the values after the function
-        - and then inevitably people (i.e me) will want set deconstruction, intersection, union etc. Which sounds like excessive scope for simply allowing lambdas
-        - ok maybe this idea is for v3
+- lambdas/anonymous functions.
+    - just need a custom operator (perhaps =>) that takes a list of arguments on the left and any node on the right, evaluating to a function value
 - conditions
     - for now is implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
     - ternary will be specified to be short circuiting so that we can use it for both conditional "flow" and selecting values
@@ -84,8 +73,6 @@ This project uses a rolling release system, where stable versions can be obtaine
     - requires attaching payload to values
 - strict data typing?
     - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
-- distinction between expressions and statement?
-    - requires moderate reworking as we have to make parser smarter
 - (minor) move to storing custom functions as (what was this going to say?)
 
 ## Overview of the code
