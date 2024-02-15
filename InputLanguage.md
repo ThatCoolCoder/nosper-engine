@@ -8,7 +8,7 @@ Simple calculations are simple to write, for instance `2 + 2`. The engine respec
 ```
 Addition:              +
 Subtraction/negation:  -
-Multiplication:        * or x
+Multiplication:        *
 Division:              /
 Exponentiation:        ** or ^
 ```

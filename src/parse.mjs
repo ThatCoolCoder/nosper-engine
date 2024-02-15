@@ -52,7 +52,7 @@ export default function parse(lexemes) {
 
     var tree = parseInner(lexemes);
 
-    // todo: check syntax?
+    // expand: more detailed syntax check?
 
     return tree;
 }

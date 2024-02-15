@@ -2,8 +2,6 @@
 
 Mathematical engine (calculator) library written in Javascript that works in browser environments and in nodejs.
 
-This is the v2dev branch - here we are developing an improved engine that will be more capable and hopefully more maintainable.
-
 ## Usage
 
 This project uses a rolling release system where versions are kept in git branches, so add the project as a git submodule with `git submodule add https://github.com/ThatCoolCoder/nosper-engine`. Then navigate to the directory where the submodule was cloned to, and choose the latest stable branch with `git checkout v1`. 
@@ -42,9 +40,10 @@ const myLoadable = {
         'm_cow': { value: 500, description: 'The mass of a single cow, in kilograms' },
     },
     functions: {
-        // note that name, args and body are combined together when applying, so the end result would be equivalent to:
-        //      def calculate_acceleration(f, m) = f / m
         'calculate_acceleration' : { args: ['f', 'm'], body: 'f / m', description: 'Calculate acceleration of an object when a force is applied' } 
+        // note that name, args and body are combined together when applying,
+        // so the end result would be equivalent to:
+        //      def calculate_acceleration(f, m) = f / m
     }
 }
 ```
@@ -65,7 +64,20 @@ This project uses a rolling release system, where stable versions can be obtaine
     - difficulty will be that it requires data types (or we could just duck-type), and requires elegant syntax for calling the value of a variable (so in other words a level of indirection similar to pointers)
         - perhaps we can prohibit variables and functions from having the same name and thus the function call operator will call the value of a variable
             - store in dict of { type: 'scalar', value: 42 } to prevent overlap? or manual checking between 2 dicts is neater and more robust?
-- ? make current function def system just syntactic sugar. We only have variables, the @ becomes a ~~prefix~~ double prefix(?) operator that invokes the value of the variable after it
+- ? make current function def system just syntactic sugar. We only have variables, the @ becomes a 
+- conditions
+    - for now is implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
+    - ternary will be specified to be short circuiting so that we can use it for both conditional "flow" and selecting values
+- add logical operators
+    - |, &, ~ are all free in the syntax, but ^ is not
+    - should we have a separate bool type or just do it c-style with ints
+- immutable values for inbuilt stuff
+    - make loaded loadables immutable?
+    - requires attaching payload to values
+- strict data typing?
+    - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
+~~prefix~~ double prefix(?) operator that invokes the value of the variable after it
+    - currently being experimented with in the `datatypeshmm` branch
     - if following item is not invokable then compile or runtime error
     - compile error if is a literal or something ridiculous
     - will remove special-case parsing
@@ -73,20 +85,6 @@ This project uses a rolling release system, where stable versions can be obtaine
     - also means that we will now need a set data type to be constructable so that the values after the function
         - and then inevitably people (i.e me) will want set deconstruction, intersection, union etc. Which sounds like excessive scope for simply allowing lambdas
         - ok maybe this idea is for v3
-- conditions
-    - for now is implemented as inbuilt function like excel (`@ifelse(cond, a, b)`) but native ternary would be amazing.
-    - ternary will be specified to be short circuiting so that we can use it for both conditional "flow" and selecting values
-- add logical operators
-    - |, ^, &, ~ are all free in the syntax
-    - should we have a separate bool type or just do it c-style
-- immutable values for inbuilt stuff
-    - make loaded loadables immutable?
-    - requires attaching payload to values
-- strict data typing?
-    - can do optional typing, where everything is assumed to be a number but in function headers you can define x: func or whatever syntax and there will be a compile/runtime error on doing that
-- distinction between expressions and statement?
-    - requires moderate reworking as we have to make parser smarter
-- (minor) move to storing custom functions as (what was this going to say?)
 
 ## Overview of the code
 
@@ -101,3 +99,5 @@ The parser (`parse.mjs`, another set of nested functions) converts these lexemes
 The evaluator (`Evaluator.mjs`, an actual class) doesn't do much. It only manages the other components, handles loadables, and keeps track of the evaluation context. Its purpose is to provide a simple interface to consumers.
 
 An `EvaluationContext` allows for easy storage of information between (and during) evaluations. It's passed around when executing the syntax tree, for instance. Among other things, it defines an array of scopes (which each contain functions and variables), which act to provide local/global variables to functions. Things at the end of the array (aka top of the stack) pertain to the most local function. Base constants are also defined through the default scope. Scopes are managed by function call nodes.
+
+We aim to keep the code todo-free for released versions, so to signify things that could be expanded upon (but don't represent a deficiency), the tag `expand:` is used.

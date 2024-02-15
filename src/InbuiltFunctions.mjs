@@ -12,7 +12,7 @@ import * as Errors from "./Errors.mjs";
 
 export const InbuiltFunctions = {
     'ifelse': { nArgs: 3, definition: (ctx, cond, a, b) => cond.evaluate(ctx) ? a.evaluate(ctx) : b.evaluate(ctx) },
-    // Todo: could add loops here if we had lambdas or blocks/multiple statements (as a loop isn't very useful without being able to have multiple lines occur)
+    // expand: could add loops here if we had lambdas or blocks/multiple statements (as a loop isn't very useful without being able to have multiple lines occur)
 
     'del_var': { nArgs: 1, definition: (ctx, rhs) => {
         // I decided against implementing this scanning functionality into the context itself
@@ -33,7 +33,7 @@ export const InbuiltFunctions = {
         throw new Errors.EvaluationError("Can't delete this variable as it doesn't exist");
     }},
 
-    // todo: this one won't work yet as we don't have a way of giving a reference to a function without just trying to call it.
+    // expand: this one won't work yet as we don't have a way of giving a reference to a function without just trying to call it.
     // Could come up with hacky syntax for that but in the long term I think it's better to move to a system where functions are just a different type of variable.
     // Only problem is that then we run into issues because how would we say eg `a = myfunc`, we'd need another special char for prefixing multi letter vars here.
     // Can't use underscore. Unless we strip underscore from start when storing it and just use it as a parsing indicator. aaaaaa
