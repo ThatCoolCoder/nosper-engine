@@ -4,7 +4,7 @@ Mathematical engine (calculator) library written in Javascript that works in bro
 
 ## Usage
 
-This project uses a rolling release system where versions are kept in git branches, so add the project as a git submodule with `git submodule add https://github.com/ThatCoolCoder/nosper-engine`. Then navigate to the directory where the submodule was cloned to, and choose the latest stable branch with `git checkout v1`. 
+This project uses a rolling release system where versions are kept in git branches, so add the project as a git submodule with `git submodule add https://github.com/ThatCoolCoder/nosper-engine`. Then navigate to the directory where the submodule was cloned to, and choose the latest stable branch with `git checkout v2`. 
 
 We use ES6 modules so import it as so: (it's the same for browser and node)
 
@@ -54,7 +54,7 @@ If for some reason, you want to compile an expression separately from evaluating
 
 ## Releases
 
-This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v1`.
+This project uses a rolling release system, where stable versions can be obtained through branches in the form of `vN`. The current stable version is on branch `v2`.
 
 (Maintainers: please update this doc when creating a new release branch)
 
