@@ -101,3 +101,7 @@ The evaluator (`Evaluator.mjs`, an actual class) doesn't do much. It only manage
 An `EvaluationContext` allows for easy storage of information between (and during) evaluations. It's passed around when executing the syntax tree, for instance. Among other things, it defines an array of scopes (which each contain functions and variables), which act to provide local/global variables to functions. Things at the end of the array (aka top of the stack) pertain to the most local function. Base constants are also defined through the default scope. Scopes are managed by function call nodes.
 
 We aim to keep the code todo-free for released versions, so to signify things that could be expanded upon (but don't represent a deficiency), the tag `expand:` is used.
+
+### Branches
+
+This project uses a bit of an unconventional branch strucure. We don't have a main branch, as we want to support multiple versions simultaneously. Instead, we have `vXdev` branches for development, and then a `vX` branch for each released version, which is updated from `vXdev` when those changes are stable. The default branch is set to the dev branch for the latest version. Feature branches are created from dev branches and might be merged back into `vXdev`, or if they're major enough they might be renamed to `v(X+1)dev`.
