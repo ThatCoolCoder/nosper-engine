@@ -1,10 +1,10 @@
 # Nosper Engine input language
 
-This document details how to write expressions for Nosper Engine. It is intended to be understandable even by those who are not programmers, so if something is confusing please create a github issue to discuss it.
+This document details how to write expressions for Nosper Engine. It is intended to be understandable even by those who are not programmers, so if something is confusing please [create an issue on github](https://github.com/ThatCoolCoder/nosper-engine/issues/new/choose) to discuss it.
 
 ## Basic usage
 
-Simple calculations are simple to write, for instance `2 + 2`. The engine respects order of operations and brackets, so `2 + 3 * 4 = 14` and `3 * (1 + 2) = 9`. Below is the list of basic operators: 
+Simple calculations are simple to write, for instance `2 + 2`. The engine respects order of operations and brackets, so `2 + 3 * 4 = 14` and `3 * (1 + 2) = 9`. Below is the list of basic operations: 
 ```
 Addition:              +
 Subtraction/negation:  -
@@ -16,7 +16,7 @@ Exponentiation:        ** or ^
 Here are some more example expressions:
 ```
 sin 1           Calc sine of 1
-sin(1 + 2)      Calc sine of complex expression
+cos(1 + 2)      Calc cosine of complex expression
 sqrt 2          Square root of 2
 5pi             5 times pi
 ```
@@ -60,9 +60,9 @@ The value of the previous answer can be accessed using `ans`, eg `ans * 2`.
 
 Variables are assigned like `a = 2` and can then be used like `a * 2`.
 
-There are two types of variable: single and multi character. By default a string of text is interpreted as single variables, but the presence of an underscore signifies that the rest of the text is part of a multi-character variable. If there's a letter before the underscore, this is taken as the first letter of the multi character variable. If you have experience with latex typesetting, it is similar to that. This system may seem complicated at first, but it is useful as it allows two use cases:
+There are two types of variable: single and multi character. By default a string of text is interpreted as single variables, but the presence of an underscore signifies that the rest of the text is part of a multi-character variable. If there's a letter before the underscore, this is taken as the first letter of the multi character variable. If you have experience with latex typesetting, this system is similar to how variables with subscripts are done there. This system may seem complicated at first, but it is useful as it allows two distinct use cases:
 - quick typing and implicit multiplication of single letter values (similar to how mathematicians would write simpler expressions on paper).
-- detailed variable names as are used in more complex 
+- detailed & descriptive variables like those that may be used in more complex scenarios
 
 See below for examples of how different text is parsed as variables:
 ```
@@ -71,10 +71,14 @@ abc                 multiplication of three variables a, b and c; a * b * c
 m_cow               the single variable m_cow
 2m_cow              2 * m_cow
 m_cow2              the single variable m_cow2
+m_cow 2             m_cow * 2
 _my_fav_number      the single variable _my_fav_number
 am_cow              a * m_cow
 am_cow b            a * m_cow * b
+abcm_cow def        a * b * c * m_cow * d * e * f
 ```
+
+Note that you cannot name a variable `q` as this is reserved as a shortcut for square root. 
 
 #### Custom functions
 
