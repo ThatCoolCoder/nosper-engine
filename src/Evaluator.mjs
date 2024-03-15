@@ -34,7 +34,7 @@ export class Evaluator {
 
     evaluateCompiledExpression(compiledExpression, debugMode=false, context=this.context) {
         try {
-            return compiledExpression.evaluate(context);
+            return (context.previousAnswer = compiledExpression.evaluate(context));
         }
         catch (e) {
             if (debugMode) console.log('Error during evaluation: ', e);
